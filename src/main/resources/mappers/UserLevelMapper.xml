@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mmall.dao.UserLevelMapper" >
+  <resultMap id="BaseResultMap" type="com.mmall.pojo.UserLevel" >
+    <constructor >
+      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="lv1" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="lv2" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="lv3" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="lv4" jdbcType="INTEGER" javaType="java.lang.Integer" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, lv1, lv2, lv3, lv4
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from mmall_user_level
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from mmall_user_level
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mmall.pojo.UserLevel" >
+    insert into mmall_user_level (id, lv1, lv2, 
+      lv3, lv4)
+    values (#{id,jdbcType=INTEGER}, #{lv1,jdbcType=INTEGER}, #{lv2,jdbcType=INTEGER}, 
+      #{lv3,jdbcType=INTEGER}, #{lv4,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.mmall.pojo.UserLevel" >
+    insert into mmall_user_level
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="lv1 != null" >
+        lv1,
+      </if>
+      <if test="lv2 != null" >
+        lv2,
+      </if>
+      <if test="lv3 != null" >
+        lv3,
+      </if>
+      <if test="lv4 != null" >
+        lv4,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="lv1 != null" >
+        #{lv1,jdbcType=INTEGER},
+      </if>
+      <if test="lv2 != null" >
+        #{lv2,jdbcType=INTEGER},
+      </if>
+      <if test="lv3 != null" >
+        #{lv3,jdbcType=INTEGER},
+      </if>
+      <if test="lv4 != null" >
+        #{lv4,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mmall.pojo.UserLevel" >
+    update mmall_user_level
+    <set >
+      <if test="lv1 != null" >
+        lv1 = #{lv1,jdbcType=INTEGER},
+      </if>
+      <if test="lv2 != null" >
+        lv2 = #{lv2,jdbcType=INTEGER},
+      </if>
+      <if test="lv3 != null" >
+        lv3 = #{lv3,jdbcType=INTEGER},
+      </if>
+      <if test="lv4 != null" >
+        lv4 = #{lv4,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mmall.pojo.UserLevel" >
+    update mmall_user_level
+    set lv1 = #{lv1,jdbcType=INTEGER},
+      lv2 = #{lv2,jdbcType=INTEGER},
+      lv3 = #{lv3,jdbcType=INTEGER},
+      lv4 = #{lv4,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectBylv1" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from mmall_user_level
+    where lv1=#{id,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectBylv2" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from mmall_user_level
+    where lv2=#{id,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectBylv3" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from mmall_user_level
+    where lv3=#{id,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectBylv4" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from mmall_user_level
+    where lv4=#{id,jdbcType=INTEGER}
+  </select>
+
+</mapper>
