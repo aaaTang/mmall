@@ -1,25 +1,37 @@
 package com.mmall.controller.portal;
 
 
+import com.google.common.collect.Maps;
 import com.mmall.common.Const;
 import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.User;
+import com.mmall.service.IFileService;
 import com.mmall.service.IUserService;
+import com.mmall.util.PropertiesUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/user/")
+@Slf4j
 public class UserController {
 
     @Autowired
     private IUserService iUserService;
+
+    @Autowired
+    private IFileService iFileService;
 
     /**
      *用户登录
@@ -68,6 +80,7 @@ public class UserController {
     public ServerResponse<User> getUserInfo(HttpSession session){
         User user=(User) session.getAttribute(Const.CURRENT_USER);
         if (user!=null){
+            user.setPassword(null);
             return ServerResponse.createBySuccess(user);
         }
         return ServerResponse.createByErrorMessage("用户未登录，无法获取当前用户的信息");
@@ -127,4 +140,29 @@ public class UserController {
         }
         return iUserService.getInformation(currentUser.getId());
     }
+
+    @RequestMapping("upload.do")
+    @ResponseBody
+    public ServerResponse upload(HttpSession session, @RequestParam(value="upload_file",required=false) MultipartFile file, HttpServletRequest request){
+        User currentUser=(User)session.getAttribute(Const.CURRENT_USER);
+        if (currentUser==null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"未登录，需要强制登录status=10");
+        }
+        String path=request.getSession().getServletContext().getRealPath("upload");
+        String targetFileName=iFileService.uploadImg(file,path);
+        String url= PropertiesUtil.getProperty("ftp.server.headimg.prefix")+targetFileName;
+        Map fileMap= Maps.newHashMap();
+
+        fileMap.put("uri",targetFileName);
+        fileMap.put("url",url);
+
+        currentUser.setHeadImg(url);
+        ServerResponse<User> response=iUserService.updateInformation(currentUser);
+        if (response.issuccess()){
+            session.setAttribute(Const.CURRENT_USER,response.getData());
+        }
+        return ServerResponse.createBySuccess("设置用户头像成功");
+    }
+
+
 }

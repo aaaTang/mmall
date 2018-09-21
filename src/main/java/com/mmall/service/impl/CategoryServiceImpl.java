@@ -4,11 +4,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mmall.common.ServerResponse;
 import com.mmall.dao.CategoryMapper;
+import com.mmall.dao.ProductMapper;
 import com.mmall.pojo.Category;
+import com.mmall.pojo.Product;
 import com.mmall.service.ICategoryService;
+import com.mmall.vo.ProductPathVo;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -17,12 +19,14 @@ import java.util.List;
 import java.util.Set;
 
 @Service("iCategoryService")
+@Slf4j
 public class CategoryServiceImpl implements ICategoryService {
-
-    private Logger logger=LoggerFactory.getLogger(CategoryServiceImpl.class);
 
     @Autowired
     private CategoryMapper categoryMapper;
+
+    @Autowired
+    private ProductMapper productMapper;
 
     public ServerResponse addCategory(String categoryName,Integer parentId){
 
@@ -64,7 +68,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
         List<Category> categoryList=categoryMapper.selectCategoryChildrenByParentId(categoryId);
         if (CollectionUtils.isEmpty(categoryList)){
-            logger.info("未找到当前分类的子分类");
+            log.info("未找到当前分类的子分类");
         }
         return ServerResponse.createBySuccess(categoryList);
     }
@@ -104,8 +108,31 @@ public class CategoryServiceImpl implements ICategoryService {
         //查找子节点，递归算法一定要有一个推出的条件
         List<Category> categoryList=categoryMapper.selectCategoryChildrenByParentId(categoryId);
         for (Category categoryItem:categoryList){
-            findChildCategory(categorySet,categoryItem.getId());
+            findChildCategory(categorySet ,categoryItem.getId());
         }
         return categorySet;
+    }
+
+    public ServerResponse<ProductPathVo> getProductPath(int productId) {
+        Product product=productMapper.selectByPrimaryKey(productId);
+        if (product==null){
+            return ServerResponse.createByErrorMessage("商品id不存在");
+        }
+        Category thirdCategory=categoryMapper.selectByPrimaryKey(product.getCategoryId());
+        Category secondCategory=categoryMapper.selectByPrimaryKey(thirdCategory.getParentId());
+        Category firstCategory=categoryMapper.selectByPrimaryKey(secondCategory.getParentId());
+
+        ProductPathVo productPathVo=new ProductPathVo();
+
+        productPathVo.setProductId(productId);
+        productPathVo.setProductName(product.getName());
+        productPathVo.setFirstCategoryid(firstCategory.getId());
+        productPathVo.setFirstCategoryName(firstCategory.getName());
+        productPathVo.setSecondCategoryId(secondCategory.getId());
+        productPathVo.setSecondCategoryName(secondCategory.getName());
+        productPathVo.setThirdCategoryId(thirdCategory.getId());
+        productPathVo.setThirdCategoryName(thirdCategory.getName());
+
+        return ServerResponse.createBySuccess(productPathVo);
     }
 }

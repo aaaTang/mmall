@@ -14,6 +14,8 @@ public interface OrderItemMapper {
 
     OrderItem selectByPrimaryKey(Integer id);
 
+    OrderItem selectByIdAndOrderNo(@Param("orderItemId") Integer orderItemId,@Param("orderNo") Long orderNo);
+
     int updateByPrimaryKeySelective(OrderItem record);
 
     int updateByPrimaryKey(OrderItem record);

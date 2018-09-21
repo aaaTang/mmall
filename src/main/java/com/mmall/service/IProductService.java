@@ -31,4 +31,12 @@ public interface IProductService {
 
     ServerResponse<List<ProductSugVo>> getProductLoveList();
 
+    ServerResponse addCollect(Integer userId,Integer productId);
+
+    ServerResponse delectCollect(Integer userId,Integer productId);
+
+    ServerResponse<PageInfo> getCollect(Integer userId,int pageNum,int pageSize);
+
+    ServerResponse queryCollect(Integer userId,Integer product);
+
 }

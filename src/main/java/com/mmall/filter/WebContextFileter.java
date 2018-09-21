@@ -21,7 +21,7 @@ public class WebContextFileter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 
-        String []  allowDomain= {"http://localhost:8080","http://mall.99sbl.com"};
+        String []  allowDomain= {"http://localhost:8080","http://mall.99sbl.com","http://b2b.99sbl.com"};
         Set allowedOrigins= new HashSet(Arrays.asList(allowDomain));
         String originHeader=((HttpServletRequest) request).getHeader("Origin");
 
@@ -32,12 +32,6 @@ public class WebContextFileter implements Filter {
             ((HttpServletResponse) response).setHeader("Access-Control-Allow-Credentials", "true"); //如果要把Cookie发到服务器，需要指定Access-Control-Allow-Credentials字段为true;
             ((HttpServletResponse) response).setHeader("XDomainRequestAllowed","1");
         }
-
-
-//        httpServletResponse.setHeader("Access-Control-Allow-Origin","http://mall.99sbl.com");
-//        httpServletResponse.setHeader("Access-Control-Allow-Origin","http://localhost:8080");
-//        httpServletResponse.setHeader("Access-Control-Allow-Credentials","true");
-//        httpServletResponse.setHeader("Access-Control-Allow-Headers", "Authentication");
         httpServletResponse.setHeader("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
         chain.doFilter(request,httpServletResponse);
         return;

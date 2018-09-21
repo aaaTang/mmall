@@ -5,6 +5,7 @@ import com.github.pagehelper.PageInfo;
 import com.mmall.common.Const;
 import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
+import com.mmall.pojo.EnterUser;
 import com.mmall.pojo.Shipping;
 import com.mmall.pojo.User;
 import com.mmall.service.IShippingService;
@@ -26,43 +27,85 @@ public class ShippingController {
     @RequestMapping("add.do")
     @ResponseBody
     public ServerResponse add(HttpSession session, Shipping shipping,@RequestParam(value = "status1",defaultValue = "false") String status){
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
-        if (user==null){
+
+        if (session.getAttribute(Const.CURRENT_USER)==null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
 
-        return iShippingService.add(user.getId(),shipping,status);
+        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
+        if (className.equals("com.mmall.pojo.User")){
+            User user=(User)session.getAttribute(Const.CURRENT_USER);
+            return iShippingService.add(user.getId(),shipping,status);
+        }
+        if (className.equals("com.mmall.pojo.EnterUser")){
+            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
+            return iShippingService.add(enterUser.getEnterUserId(),shipping,status);
+        }
+        return ServerResponse.createByErrorMessage("参数错误");
+
     }
 
     @RequestMapping("delete.do")
     @ResponseBody
     public ServerResponse delete(HttpSession session,Integer shippingId){
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
-        if (user==null){
+
+        if (session.getAttribute(Const.CURRENT_USER)==null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
 
-        return iShippingService.delete(user.getId(),shippingId);
+        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
+        if (className.equals("com.mmall.pojo.User")){
+            User user=(User)session.getAttribute(Const.CURRENT_USER);
+            return iShippingService.delete(user.getId(),shippingId);
+        }
+        if (className.equals("com.mmall.pojo.EnterUser")){
+            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
+            return iShippingService.delete(enterUser.getEnterUserId(),shippingId);
+        }
+        return ServerResponse.createByErrorMessage("参数错误");
+
     }
 
     @RequestMapping("update.do")
     @ResponseBody
     public ServerResponse update(HttpSession session, Shipping shipping,@RequestParam(value = "status1") String status){
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
-        if (user==null){
+
+        if (session.getAttribute(Const.CURRENT_USER)==null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        return iShippingService.update(user.getId(),shipping,status);
+
+        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
+        if (className.equals("com.mmall.pojo.User")){
+            User user=(User)session.getAttribute(Const.CURRENT_USER);
+            return iShippingService.update(user.getId(),shipping,status);
+        }
+        if (className.equals("com.mmall.pojo.EnterUser")){
+            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
+            return iShippingService.update(enterUser.getEnterUserId(),shipping,status);
+        }
+        return ServerResponse.createByErrorMessage("参数错误");
+
     }
 
     @RequestMapping("select.do")
     @ResponseBody
     public ServerResponse select(HttpSession session,Integer shippingId){
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
-        if (user==null){
+
+        if (session.getAttribute(Const.CURRENT_USER)==null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        return iShippingService.select(user.getId(),shippingId);
+
+        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
+        if (className.equals("com.mmall.pojo.User")){
+            User user=(User)session.getAttribute(Const.CURRENT_USER);
+            return iShippingService.select(user.getId(),shippingId);
+        }
+        if (className.equals("com.mmall.pojo.EnterUser")){
+            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
+            return iShippingService.select(enterUser.getEnterUserId(),shippingId);
+        }
+        return ServerResponse.createByErrorMessage("参数错误");
+
     }
 
     @RequestMapping("list.do")
@@ -70,21 +113,43 @@ public class ShippingController {
     public ServerResponse<PageInfo> list(@RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
                                          @RequestParam(value = "pageSize",defaultValue = "10") int pageSize,
                                          HttpSession session){
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
-        if (user==null){
+
+        if (session.getAttribute(Const.CURRENT_USER)==null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        return iShippingService.list(user.getId(),pageNum,pageSize);
+
+        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
+        if (className.equals("com.mmall.pojo.User")){
+            User user=(User)session.getAttribute(Const.CURRENT_USER);
+            return iShippingService.list(user.getId(),pageNum,pageSize);
+        }
+        if (className.equals("com.mmall.pojo.EnterUser")){
+            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
+            return iShippingService.list(enterUser.getEnterUserId(),pageNum,pageSize);
+        }
+        return ServerResponse.createByErrorMessage("参数错误");
+
     }
 
     @RequestMapping("set_default.do")
     @ResponseBody
     public ServerResponse setDefault(HttpSession session,int shippingId){
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
-        if (user==null){
+
+        if (session.getAttribute(Const.CURRENT_USER)==null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        return iShippingService.setDefault(user.getId(),shippingId);
+
+        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
+        if (className.equals("com.mmall.pojo.User")){
+            User user=(User)session.getAttribute(Const.CURRENT_USER);
+            return iShippingService.setDefault(user.getId(),shippingId);
+        }
+        if (className.equals("com.mmall.pojo.EnterUser")){
+            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
+            return iShippingService.setDefault(enterUser.getEnterUserId(),shippingId);
+        }
+        return ServerResponse.createByErrorMessage("参数错误");
+
     }
 
 }

@@ -130,6 +130,7 @@ public class ProductManageController {
         }
         if (iUserService.checkAdminRole(user).issuccess()){
             String path=request.getSession().getServletContext().getRealPath("upload");
+
             String targetFileName=iFileService.upload(file,path);
             String url=PropertiesUtil.getProperty("ftp.server.http.prefix")+targetFileName;
 

@@ -1,11 +1,15 @@
 package com.mmall.controller.portal;
 
 import com.github.pagehelper.PageInfo;
+import com.mmall.common.Const;
+import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
+import com.mmall.pojo.EnterUser;
+import com.mmall.pojo.User;
+import com.mmall.service.ICategoryService;
 import com.mmall.service.IProductService;
 import com.mmall.vo.ProductDetailVo;
 import com.mmall.vo.ProductListTestVo;
-import com.mmall.vo.ProductListVo;
 import com.mmall.vo.ProductSugVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,6 +26,9 @@ public class ProductController {
 
     @Autowired
     private IProductService iProductService;
+
+    @Autowired
+    private ICategoryService iCategoryService;
 
     @RequestMapping("detail.do")
     @ResponseBody
@@ -62,6 +69,84 @@ public class ProductController {
     @ResponseBody
     public ServerResponse<List<ProductSugVo>> getLove(){
         return iProductService.getProductLoveList();
+    }
+
+    @RequestMapping("add_collect.do")
+    @ResponseBody
+    public ServerResponse addCollect(HttpSession session,int productId){
+        if (session.getAttribute(Const.CURRENT_USER)==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+        }
+        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
+        if (className.equals("com.mmall.pojo.User")){
+            User user=(User)session.getAttribute(Const.CURRENT_USER);
+            return iProductService.addCollect(user.getId(),productId);
+        }
+        if (className.equals("com.mmall.pojo.EnterUser")){
+            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
+            return iProductService.addCollect(enterUser.getEnterUserId(),productId);
+        }
+        return ServerResponse.createByErrorMessage("参数错误");
+    }
+
+    @RequestMapping("delete_collect.do")
+    @ResponseBody
+    public ServerResponse deleteCollect(HttpSession session,int productId){
+        if (session.getAttribute(Const.CURRENT_USER)==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+        }
+        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
+        if (className.equals("com.mmall.pojo.User")){
+            User user=(User)session.getAttribute(Const.CURRENT_USER);
+            return iProductService.delectCollect(user.getId(),productId);
+        }
+        if (className.equals("com.mmall.pojo.EnterUser")){
+            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
+            return iProductService.delectCollect(enterUser.getEnterUserId(),productId);
+        }
+        return ServerResponse.createByErrorMessage("参数错误");
+    }
+
+    @RequestMapping("get_collect.do")
+    @ResponseBody
+    public ServerResponse getCollect(HttpSession session, @RequestParam(value = "pageNum",defaultValue = "1") int pageNum,@RequestParam(value = "pageSize",defaultValue = "10") int pageSize){
+        if (session.getAttribute(Const.CURRENT_USER)==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+        }
+        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
+        if (className.equals("com.mmall.pojo.User")){
+            User user=(User)session.getAttribute(Const.CURRENT_USER);
+            return iProductService.getCollect(user.getId(),pageNum,pageSize);
+        }
+        if (className.equals("com.mmall.pojo.EnterUser")){
+            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
+            return iProductService.getCollect(enterUser.getEnterUserId(),pageNum,pageSize);
+        }
+        return ServerResponse.createByErrorMessage("参数错误");
+    }
+
+    @RequestMapping("query_collect.do")
+    @ResponseBody
+    public ServerResponse queryCollect(HttpSession session,int productId){
+        if (session.getAttribute(Const.CURRENT_USER)==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+        }
+        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
+        if (className.equals("com.mmall.pojo.User")){
+            User user=(User)session.getAttribute(Const.CURRENT_USER);
+            return iProductService.queryCollect(user.getId(),productId);
+        }
+        if (className.equals("com.mmall.pojo.EnterUser")){
+            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
+            return iProductService.queryCollect(enterUser.getEnterUserId(),productId);
+        }
+        return ServerResponse.createByErrorMessage("参数错误");
+    }
+
+    @RequestMapping("get_path.do")
+    @ResponseBody
+    public ServerResponse getPath(int productId){
+        return iCategoryService.getProductPath(productId);
     }
 
 }

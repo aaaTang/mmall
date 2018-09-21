@@ -6,6 +6,7 @@
       <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="user_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="product_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="model_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="quantity" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="checked" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
@@ -13,7 +14,7 @@
     </constructor>
   </resultMap>
   <sql id="Base_Column_List" >
-    id, user_id, product_id, quantity, checked, create_time, update_time
+    id, user_id, product_id, model_id,quantity, checked, create_time, update_time
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
@@ -26,10 +27,10 @@
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.mmall.pojo.Cart" >
-    insert into mmall_cart (id, user_id, product_id, 
+    insert into mmall_cart (id, user_id, product_id, model_id,
       quantity, checked, create_time, 
       update_time)
-    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{productId,jdbcType=INTEGER}, 
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{productId,jdbcType=INTEGER}, #{modelId,jdbcType=INTEGER},
       #{quantity,jdbcType=INTEGER}, #{checked,jdbcType=INTEGER}, now(),
       now())
   </insert>
@@ -44,6 +45,9 @@
       </if>
       <if test="productId != null" >
         product_id,
+      </if>
+      <if test="modelId != null" >
+        model_id,
       </if>
       <if test="quantity != null" >
         quantity,
@@ -68,6 +72,9 @@
       <if test="productId != null" >
         #{productId,jdbcType=INTEGER},
       </if>
+      <if test="modelId != null" >
+        #{modelId,jdbcType=INTEGER},
+      </if>
       <if test="quantity != null" >
         #{quantity,jdbcType=INTEGER},
       </if>
@@ -91,6 +98,9 @@
       <if test="productId != null" >
         product_id = #{productId,jdbcType=INTEGER},
       </if>
+      <if test="modelId != null" >
+        model_id = #{modelId,jdbcType=INTEGER},
+      </if>
       <if test="quantity != null" >
         quantity = #{quantity,jdbcType=INTEGER},
       </if>
@@ -110,6 +120,7 @@
     update mmall_cart
     set user_id = #{userId,jdbcType=INTEGER},
       product_id = #{productId,jdbcType=INTEGER},
+      model_id = #{modelId,jdbcType=INTEGER},
       quantity = #{quantity,jdbcType=INTEGER},
       checked = #{checked,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=TIMESTAMP},
@@ -124,12 +135,21 @@
     where user_id= #{userId}
     and product_id=#{productId}
   </select>
+
+  <select id="selectCartByUserIdProductIdList" resultMap="BaseResultMap" parameterType="map">
+    select
+    <include refid="Base_Column_List" />
+    from mmall_cart
+    where user_id= #{userId}
+    and product_id=#{productId}
+  </select>
   
   <select id="selectCartByUserId" resultMap="BaseResultMap" parameterType="int">
     select
     <include refid="Base_Column_List"/>
     from mmall_cart
     where user_id = #{userId}
+    order by product_id asc
   </select>
   
   <select id="selectCartProductCheckedStatusByUserId" resultType="java.lang.Integer" parameterType="int">
@@ -147,6 +167,13 @@
     </if>
   </delete>
 
+  <delete id="deleteByUserIdProductIdModelId" parameterType="map">
+    delete from mmall_cart
+    where user_id = #{userId}
+    and product_id=#{productId}
+    and model_id=#{modelId}
+  </delete>
+
   <update id="checkedOrUncheckedProduct" parameterType="map">
     update mmall_cart
     set checked=#{checked},
@@ -154,6 +181,9 @@
     where user_id=#{userId}
     <if test="productId !=null">
       and product_id = #{productId}
+    </if>
+    <if test="modelId !=null">
+      and model_id = #{modelId}
     </if>
   </update>
 
@@ -167,6 +197,15 @@
     from mmall_cart
     where user_id=#{userId}
     and checked=1
+  </select>
+
+  <select id="selectCartByUserIdProductIdModelId" resultMap="BaseResultMap" parameterType="map">
+    select
+    <include refid="Base_Column_List" />
+    from mmall_cart
+    where user_id= #{userId}
+    and product_id=#{productId}
+    and model_id=#{modelId}
   </select>
 
 </mapper>

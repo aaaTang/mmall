@@ -38,7 +38,7 @@ public class ShippingServiceImpl implements IShippingService {
         int rowCount=shippingMapper.insert(shipping);
         if (rowCount > 0){
             Map result = Maps.newHashMap();
-            result.put("shippingId",shipping.getId());
+            result.put("shippingId",shippingMapper.selectMaxId());
             return ServerResponse.createBySuccess("新建地址成功",result);
         }
         return ServerResponse.createByErrorMessage("新建地址失败");

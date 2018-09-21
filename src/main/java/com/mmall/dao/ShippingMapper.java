@@ -30,4 +30,6 @@ public interface ShippingMapper {
 
     Shipping selectDefault(Integer userId);
 
+    int selectMaxId();
+
 }

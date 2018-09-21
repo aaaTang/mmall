@@ -10,6 +10,12 @@
       <arg column="product_name" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="product_image" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="current_unit_price" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+
+      <arg column="model_status" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="model_name" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="model_price" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="model_unit" jdbcType="VARCHAR" javaType="java.lang.String" />
+
       <arg column="quantity" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="total_price" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
       <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
@@ -17,8 +23,8 @@
     </constructor>
   </resultMap>
   <sql id="Base_Column_List" >
-    id, user_id, order_no, product_id, product_name, product_image, current_unit_price, 
-    quantity, total_price, create_time, update_time
+    id, user_id, order_no, product_id, product_name, product_image, current_unit_price, model_status, model_name,
+    model_price,model_unit,quantity, total_price, create_time, update_time
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
@@ -26,6 +32,15 @@
     from mmall_order_item
     where id = #{id,jdbcType=INTEGER}
   </select>
+
+  <select id="selectByIdAndOrderNo" resultMap="BaseResultMap" parameterType="map">
+    select
+    <include refid="Base_Column_List"/>
+    from mmall_order_item
+    where id=#{orderItemId,jdbcType=INTEGER}
+    and order_no=#{orderNo,jdbcType=BIGINT}
+  </select>
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from mmall_order_item
     where id = #{id,jdbcType=INTEGER}
@@ -33,11 +48,14 @@
   <insert id="insert" parameterType="com.mmall.pojo.OrderItem" >
     insert into mmall_order_item (id, user_id, order_no, 
       product_id, product_name, product_image, 
-      current_unit_price, quantity, total_price, 
+      current_unit_price, model_status, model_name,
+      model_price,model_unit,quantity, total_price,
       create_time, update_time)
     values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{orderNo,jdbcType=BIGINT}, 
       #{productId,jdbcType=INTEGER}, #{productName,jdbcType=VARCHAR}, #{productImage,jdbcType=VARCHAR}, 
-      #{currentUnitPrice,jdbcType=DECIMAL}, #{quantity,jdbcType=INTEGER}, #{totalPrice,jdbcType=DECIMAL}, 
+      #{currentUnitPrice,jdbcType=DECIMAL}, #{modelStatus,jdbcType=INTEGER},#{modelName,jdbcType=VARCHAR},
+      #{modelPrice,jdbcType=DECIMAL},#{modelUnit,jdbcType=VARCHAR},#{quantity,jdbcType=INTEGER},
+      #{totalPrice,jdbcType=DECIMAL},
       now(), now())
   </insert>
   <insert id="insertSelective" parameterType="com.mmall.pojo.OrderItem" >
@@ -63,6 +81,18 @@
       </if>
       <if test="currentUnitPrice != null" >
         current_unit_price,
+      </if>
+      <if test="modelStatus != null" >
+        model_status,
+      </if>
+      <if test="modelName != null" >
+        model_name,
+      </if>
+      <if test="modelPrice != null" >
+        model_price,
+      </if>
+      <if test="modelUnit != null" >
+        model_unit,
       </if>
       <if test="quantity != null" >
         quantity,
@@ -99,6 +129,18 @@
       <if test="currentUnitPrice != null" >
         #{currentUnitPrice,jdbcType=DECIMAL},
       </if>
+      <if test="modelStatus != null" >
+        #{modelStatus,jdbcType=INTEGER},
+      </if>
+      <if test="modelName != null" >
+        #{modelName,jdbcType=VARCHAR},
+      </if>
+      <if test="modelPrice != null" >
+        #{modelPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="modelUnit != null" >
+        #{modelUnit,jdbcType=VARCHAR},
+      </if>
       <if test="quantity != null" >
         #{quantity,jdbcType=INTEGER},
       </if>
@@ -134,6 +176,18 @@
       <if test="currentUnitPrice != null" >
         current_unit_price = #{currentUnitPrice,jdbcType=DECIMAL},
       </if>
+      <if test="modelStatus != null" >
+        model_status = #{productId,jdbcType=INTEGER},
+      </if>
+      <if test="modelName != null" >
+        model_name = #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="modelPrice != null" >
+        model_price = #{productImage,jdbcType=DECIMAL},
+      </if>
+      <if test="modelUnit != null" >
+        model_unit = #{currentUnitPrice,jdbcType=VARCHAR},
+      </if>
       <if test="quantity != null" >
         quantity = #{quantity,jdbcType=INTEGER},
       </if>
@@ -157,6 +211,10 @@
       product_name = #{productName,jdbcType=VARCHAR},
       product_image = #{productImage,jdbcType=VARCHAR},
       current_unit_price = #{currentUnitPrice,jdbcType=DECIMAL},
+      model_status = #{modelStatus,jdbcType=INTEGER},
+      model_name = #{modelName,jdbcType=VARCHAR},
+      model_price = #{modelPrice,jdbcType=DECIMAL},
+      model_unit = #{modelUnit,jdbcType=VARCHAR},
       quantity = #{quantity,jdbcType=INTEGER},
       total_price = #{totalPrice,jdbcType=DECIMAL},
       create_time = #{createTime,jdbcType=TIMESTAMP},
@@ -182,13 +240,14 @@
   <insert id="batchInsert" parameterType="list">
     insert into mmall_order_item (id, order_no, user_id,
       product_id, product_name, product_image,
-      current_unit_price, quantity, total_price,
+      current_unit_price, model_status, model_name,
+      model_price,model_unit,quantity, total_price,
       create_time, update_time)
     values
     <foreach collection="orderItemList" index="index" item="item" separator=",">
       (
       #{item.id},#{item.orderNo},#{item.userId},#{item.productId},#{item.productName},#{item.productImage},
-      #{item.currentUnitPrice},#{item.quantity},#{item.totalPrice},now(),now()
+      #{item.currentUnitPrice},#{item.modelStatus},#{item.modelName},#{item.modelPrice},#{item.modelUnit},#{item.quantity},#{item.totalPrice},now(),now()
       )
     </foreach>
   </insert>

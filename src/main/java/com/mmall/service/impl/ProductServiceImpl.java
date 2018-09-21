@@ -7,19 +7,18 @@ import com.mmall.common.Const;
 import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.dao.CategoryMapper;
+import com.mmall.dao.ProductCollectMapper;
 import com.mmall.dao.ProductMapper;
 import com.mmall.dao.ProductModelMapper;
 import com.mmall.pojo.Category;
 import com.mmall.pojo.Product;
+import com.mmall.pojo.ProductCollect;
 import com.mmall.pojo.ProductModel;
 import com.mmall.service.ICategoryService;
 import com.mmall.service.IProductService;
 import com.mmall.util.DataTimeUtil;
 import com.mmall.util.PropertiesUtil;
-import com.mmall.vo.ProductDetailVo;
-import com.mmall.vo.ProductListTestVo;
-import com.mmall.vo.ProductListVo;
-import com.mmall.vo.ProductSugVo;
+import com.mmall.vo.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,6 +41,9 @@ public class ProductServiceImpl implements IProductService {
 
     @Autowired
     private ICategoryService iCategoryService;
+
+    @Autowired
+    private ProductCollectMapper productCollectMapper;
 
     public ServerResponse saveOrUpdateProduct(Product product){
 
@@ -334,6 +336,60 @@ public class ProductServiceImpl implements IProductService {
 
         return ServerResponse.createBySuccess(pageInfo);
 
+    }
+
+    public ServerResponse addCollect(Integer userId,Integer productId){
+        ProductCollect productCollect;
+        productCollect=productCollectMapper.selectByUserIdAndProductId(userId,productId);
+        if (productCollect!=null){
+            return ServerResponse.createByErrorMessage("该商品已经添加收藏");
+        }
+        productCollect=new ProductCollect();
+        productCollect.setProductId(productId);
+        productCollect.setUserId(userId);
+        int rowcount=productCollectMapper.insert(productCollect);
+        if (rowcount>0){
+            return ServerResponse.createBySuccess("插入成功");
+        }
+        return ServerResponse.createByErrorMessage("插入失败");
+    }
+
+    public ServerResponse delectCollect(Integer userId,Integer productId){
+
+        int rowcount=productCollectMapper.deleteByUserIdProductId(userId,productId);
+        if (rowcount>0){
+            return ServerResponse.createBySuccess("删除成功");
+        }
+        return ServerResponse.createByErrorMessage("删除失败");
+    }
+
+    public ServerResponse<PageInfo> getCollect(Integer userId,int pageNum,int pageSize){
+        PageHelper.startPage(pageNum,pageSize);
+        List<Product> productList=Lists.newArrayList();
+
+        List<ProductCollect> productCollectList=productCollectMapper.selectByUserId(userId);
+        for (ProductCollect productCollect:productCollectList){
+            Product product=new Product();
+            product=productMapper.selectByPrimaryKey(productCollect.getProductId());
+            productList.add(product);
+        }
+
+        List<ProductListVo> productListVoList= Lists.newArrayList();
+        for (Product productItem:productList){
+            ProductListVo productListVo=assembleProductListVo(productItem);
+            productListVoList.add(productListVo);
+        }
+        PageInfo pageResult=new PageInfo(productList);
+        pageResult.setList(productListVoList);
+        return ServerResponse.createBySuccess(pageResult);
+    }
+
+    public ServerResponse queryCollect(Integer userId,Integer product){
+        ProductCollect productCollect=productCollectMapper.selectByUserIdAndProductId(userId,product);
+        if (productCollect!=null){
+            return ServerResponse.createBySuccess(1);
+        }
+        return ServerResponse.createBySuccess(0);
     }
 
 }

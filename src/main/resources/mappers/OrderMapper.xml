@@ -258,4 +258,13 @@
     order by create_time desc
   </select>
 
+  <select id="selectByYear" resultMap="BaseResultMap" parameterType="map">
+    select
+    <include refid="Base_Column_List"/>
+    from mmall_order
+    where payment_time between #{tempStartTime} and #{tempEndTime}
+    and user_id=#{userId}
+
+  </select>
+
 </mapper>

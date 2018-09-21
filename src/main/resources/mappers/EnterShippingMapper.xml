@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mmall.dao.EnterShippingMapper" >
+  <resultMap id="BaseResultMap" type="com.mmall.pojo.EnterShipping" >
+    <constructor >
+      <idArg column="enter_shipping_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="enter_user_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="enter_receiver_name" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="enter_receiver_telephone" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="enter_receiver_phone" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="enter_receiver_province" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="enter_receiver_city" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="enter_receiver_district" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="enter_receiver_address" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="enter_receiver_floor" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="enter_receiver_time" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="enter_truck" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="enter_status" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="enter_after_work" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    enter_shipping_id, enter_user_id, enter_receiver_name, enter_receiver_telephone, 
+    enter_receiver_phone, enter_receiver_province, enter_receiver_city, enter_receiver_district, 
+    enter_receiver_address, enter_receiver_floor, enter_receiver_time, enter_truck, enter_status, 
+    enter_after_work, create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from mmall_enter_shipping
+    where enter_shipping_id = #{enterShippingId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from mmall_enter_shipping
+    where enter_shipping_id = #{enterShippingId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mmall.pojo.EnterShipping" >
+    insert into mmall_enter_shipping (enter_shipping_id, enter_user_id, enter_receiver_name, 
+      enter_receiver_telephone, enter_receiver_phone, 
+      enter_receiver_province, enter_receiver_city, 
+      enter_receiver_district, enter_receiver_address, 
+      enter_receiver_floor, enter_receiver_time, 
+      enter_truck, enter_status, enter_after_work, 
+      create_time, update_time)
+    values (#{enterShippingId,jdbcType=INTEGER}, #{enterUserId,jdbcType=INTEGER}, #{enterReceiverName,jdbcType=VARCHAR}, 
+      #{enterReceiverTelephone,jdbcType=VARCHAR}, #{enterReceiverPhone,jdbcType=VARCHAR}, 
+      #{enterReceiverProvince,jdbcType=VARCHAR}, #{enterReceiverCity,jdbcType=VARCHAR}, 
+      #{enterReceiverDistrict,jdbcType=VARCHAR}, #{enterReceiverAddress,jdbcType=VARCHAR}, 
+      #{enterReceiverFloor,jdbcType=INTEGER}, #{enterReceiverTime,jdbcType=VARCHAR}, 
+      #{enterTruck,jdbcType=INTEGER}, #{enterStatus,jdbcType=INTEGER}, #{enterAfterWork,jdbcType=VARCHAR}, 
+      now(), now())
+  </insert>
+  <insert id="insertSelective" parameterType="com.mmall.pojo.EnterShipping" >
+    insert into mmall_enter_shipping
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="enterShippingId != null" >
+        enter_shipping_id,
+      </if>
+      <if test="enterUserId != null" >
+        enter_user_id,
+      </if>
+      <if test="enterReceiverName != null" >
+        enter_receiver_name,
+      </if>
+      <if test="enterReceiverTelephone != null" >
+        enter_receiver_telephone,
+      </if>
+      <if test="enterReceiverPhone != null" >
+        enter_receiver_phone,
+      </if>
+      <if test="enterReceiverProvince != null" >
+        enter_receiver_province,
+      </if>
+      <if test="enterReceiverCity != null" >
+        enter_receiver_city,
+      </if>
+      <if test="enterReceiverDistrict != null" >
+        enter_receiver_district,
+      </if>
+      <if test="enterReceiverAddress != null" >
+        enter_receiver_address,
+      </if>
+      <if test="enterReceiverFloor != null" >
+        enter_receiver_floor,
+      </if>
+      <if test="enterReceiverTime != null" >
+        enter_receiver_time,
+      </if>
+      <if test="enterTruck != null" >
+        enter_truck,
+      </if>
+      <if test="enterStatus != null" >
+        enter_status,
+      </if>
+      <if test="enterAfterWork != null" >
+        enter_after_work,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="enterShippingId != null" >
+        #{enterShippingId,jdbcType=INTEGER},
+      </if>
+      <if test="enterUserId != null" >
+        #{enterUserId,jdbcType=INTEGER},
+      </if>
+      <if test="enterReceiverName != null" >
+        #{enterReceiverName,jdbcType=VARCHAR},
+      </if>
+      <if test="enterReceiverTelephone != null" >
+        #{enterReceiverTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="enterReceiverPhone != null" >
+        #{enterReceiverPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="enterReceiverProvince != null" >
+        #{enterReceiverProvince,jdbcType=VARCHAR},
+      </if>
+      <if test="enterReceiverCity != null" >
+        #{enterReceiverCity,jdbcType=VARCHAR},
+      </if>
+      <if test="enterReceiverDistrict != null" >
+        #{enterReceiverDistrict,jdbcType=VARCHAR},
+      </if>
+      <if test="enterReceiverAddress != null" >
+        #{enterReceiverAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="enterReceiverFloor != null" >
+        #{enterReceiverFloor,jdbcType=INTEGER},
+      </if>
+      <if test="enterReceiverTime != null" >
+        #{enterReceiverTime,jdbcType=VARCHAR},
+      </if>
+      <if test="enterTruck != null" >
+        #{enterTruck,jdbcType=INTEGER},
+      </if>
+      <if test="enterStatus != null" >
+        #{enterStatus,jdbcType=INTEGER},
+      </if>
+      <if test="enterAfterWork != null" >
+        #{enterAfterWork,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        now(),
+      </if>
+      <if test="updateTime != null" >
+        now(),
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mmall.pojo.EnterShipping" >
+    update mmall_enter_shipping
+    <set >
+      <if test="enterUserId != null" >
+        enter_user_id = #{enterUserId,jdbcType=INTEGER},
+      </if>
+      <if test="enterReceiverName != null" >
+        enter_receiver_name = #{enterReceiverName,jdbcType=VARCHAR},
+      </if>
+      <if test="enterReceiverTelephone != null" >
+        enter_receiver_telephone = #{enterReceiverTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="enterReceiverPhone != null" >
+        enter_receiver_phone = #{enterReceiverPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="enterReceiverProvince != null" >
+        enter_receiver_province = #{enterReceiverProvince,jdbcType=VARCHAR},
+      </if>
+      <if test="enterReceiverCity != null" >
+        enter_receiver_city = #{enterReceiverCity,jdbcType=VARCHAR},
+      </if>
+      <if test="enterReceiverDistrict != null" >
+        enter_receiver_district = #{enterReceiverDistrict,jdbcType=VARCHAR},
+      </if>
+      <if test="enterReceiverAddress != null" >
+        enter_receiver_address = #{enterReceiverAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="enterReceiverFloor != null" >
+        enter_receiver_floor = #{enterReceiverFloor,jdbcType=INTEGER},
+      </if>
+      <if test="enterReceiverTime != null" >
+        enter_receiver_time = #{enterReceiverTime,jdbcType=VARCHAR},
+      </if>
+      <if test="enterTruck != null" >
+        enter_truck = #{enterTruck,jdbcType=INTEGER},
+      </if>
+      <if test="enterStatus != null" >
+        enter_status = #{enterStatus,jdbcType=INTEGER},
+      </if>
+      <if test="enterAfterWork != null" >
+        enter_after_work = #{enterAfterWork,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = now(),
+      </if>
+    </set>
+    where enter_shipping_id = #{enterShippingId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mmall.pojo.EnterShipping" >
+    update mmall_enter_shipping
+    set enter_user_id = #{enterUserId,jdbcType=INTEGER},
+      enter_receiver_name = #{enterReceiverName,jdbcType=VARCHAR},
+      enter_receiver_telephone = #{enterReceiverTelephone,jdbcType=VARCHAR},
+      enter_receiver_phone = #{enterReceiverPhone,jdbcType=VARCHAR},
+      enter_receiver_province = #{enterReceiverProvince,jdbcType=VARCHAR},
+      enter_receiver_city = #{enterReceiverCity,jdbcType=VARCHAR},
+      enter_receiver_district = #{enterReceiverDistrict,jdbcType=VARCHAR},
+      enter_receiver_address = #{enterReceiverAddress,jdbcType=VARCHAR},
+      enter_receiver_floor = #{enterReceiverFloor,jdbcType=INTEGER},
+      enter_receiver_time = #{enterReceiverTime,jdbcType=VARCHAR},
+      enter_truck = #{enterTruck,jdbcType=INTEGER},
+      enter_status = #{enterStatus,jdbcType=INTEGER},
+      enter_after_work = #{enterAfterWork,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = now()
+    where enter_shipping_id = #{enterShippingId,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectDefault" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from mmall_enter_shipping
+    where enter_status=1
+    and enter_user_id=#{userId,jdbcType=INTEGER}
+  </select>
+
+  <update id="updateStatus" parameterType="com.mmall.pojo.Shipping">
+	update mmall_enter_shipping
+	<set>
+	   enter_status = #{enterStatus,jdbcType=INTEGER}
+	</set>
+	where enter_shipping_id = #{enterShippingId,jdbcType=INTEGER}
+    and enter_user_id = #{enterUserId,jdbcType=INTEGER}
+  </update>
+
+  <delete id="deleteByShippingIdUserId" parameterType="map">
+    delete from mmall_enter_shipping
+    where enter_shipping_id = #{shippingId}
+    and enter_user_id = #{userId}
+  </delete>
+
+  <update id="updateByShipping" parameterType="com.mmall.pojo.EnterShipping">
+    update mmall_enter_shipping
+    <set>
+      <if test="enterReceiverName != null" >
+        enter_receiver_name = #{enterReceiverName,jdbcType=VARCHAR},
+      </if>
+      <if test="enterReceiverTelephone != null" >
+        enter_receiver_telephone = #{enterReceiverTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="enterReceiverPhone != null" >
+        enter_receiver_phone = #{enterReceiverPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="enterReceiverProvince != null" >
+        enter_receiver_province = #{enterReceiverProvince,jdbcType=VARCHAR},
+      </if>
+      <if test="enterReceiverCity != null" >
+        enter_receiver_city = #{enterReceiverCity,jdbcType=VARCHAR},
+      </if>
+      <if test="enterReceiverDistrict != null" >
+        enter_receiver_district = #{enterReceiverDistrict,jdbcType=VARCHAR},
+      </if>
+      <if test="enterReceiverAddress != null" >
+        enter_receiver_address = #{enterReceiverAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="enterReceiverFloor != null" >
+        enter_receiver_floor = #{enterReceiverFloor,jdbcType=INTEGER},
+      </if>
+      <if test="enterReceiverTime != null" >
+        enter_receiver_time = #{enterReceiverTime,jdbcType=VARCHAR},
+      </if>
+      <if test="enterTruck != null" >
+        enter_truck = #{enterTruck,jdbcType=INTEGER},
+      </if>
+      <if test="enterStatus != null" >
+        enter_status = #{enterStatus,jdbcType=INTEGER},
+      </if>
+      <if test="enterAfterWork != null" >
+        enter_after_work = #{enterAfterWork,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = now(),
+      </if>
+    </set>
+    where enter_shipping_id = #{enterShippingId,jdbcType=INTEGER}
+    and enter_user_id = #{enterUserId,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectByShippingIdUserId" resultMap="BaseResultMap" parameterType="map">
+    select
+    <include refid="Base_Column_List" />
+    from mmall_enter_shipping
+    where enter_shipping_id=#{shippingId}
+    and enter_user_id=#{userId}
+  </select>
+
+  <select id="selectByUserId" resultMap="BaseResultMap" parameterType="map">
+    select
+    <include refid="Base_Column_List" />
+    from mmall_enter_shipping
+    where enter_user_id = #{userId}
+  </select>
+
+  <select id="selectMaxId" resultType="int">
+    select max(enter_shipping_id) from mmall_enter_shipping
+  </select>
+
+</mapper>

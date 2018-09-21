@@ -1,12 +1,11 @@
 package com.mmall.pojo;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Cart {
@@ -15,6 +14,8 @@ public class Cart {
     private Integer userId;
 
     private Integer productId;
+
+    private Integer modelId;
 
     private Integer quantity;
 

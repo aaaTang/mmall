@@ -120,7 +120,9 @@ public class Const {
     }
 
     public enum PaymentTypeEnum{
-        ONLINE_PAY(1,"在线支付");
+        ONLINE_PAY(1,"在线支付"),
+        DELIVERY_PAY(2,"货到付款"),
+        OFFLINE_PAY(3,"提交审核");
         PaymentTypeEnum(int code,String value){
             this.code=code;
             this.value=value;

@@ -233,5 +233,10 @@
     and id !=#{userId}
   </select>
 
+  <select id="selectAllUserId" resultType="integer">
+    select id
+    from mmall_user
+  </select>
+
 
 </mapper>

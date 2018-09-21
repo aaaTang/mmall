@@ -52,7 +52,8 @@ public class UserServiceImpl implements IUserService {
 
         //MD5加密
         user.setPassword(MD5Util.MD5EncodeUtf8(user.getPassword()));
-
+        user.setDiscount(100);
+        user.setRole(0);
         int resultCount=userMapper.insert(user);
 
         if (resultCount==0){
@@ -163,6 +164,7 @@ public class UserServiceImpl implements IUserService {
         }
         User updateUser=new User();
         updateUser.setId(user.getId());
+        updateUser.setHeadImg(user.getHeadImg());
         updateUser.setEmail(user.getEmail());
         updateUser.setPhone(user.getPhone());
         updateUser.setQuestion(user.getQuestion());

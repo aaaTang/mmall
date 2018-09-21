@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mmall.dao.MessageMapper" >
+  <resultMap id="BaseResultMap" type="com.mmall.pojo.Message" >
+    <constructor >
+      <idArg column="message_info_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="title" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="content" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="message_url" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="operator" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="goal_user" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="reador" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    message_info_id, title, content, message_url, operator, goal_user, reador, create_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from mmall_message
+    where message_info_id = #{messageInfoId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from mmall_message
+    where message_info_id = #{messageInfoId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mmall.pojo.Message" >
+    insert into mmall_message (message_info_id, title, content, 
+      message_url, operator, goal_user, 
+      reador, create_time)
+    values (#{messageInfoId,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, 
+      #{messageUrl,jdbcType=VARCHAR}, #{operator,jdbcType=VARCHAR}, #{goalUser,jdbcType=INTEGER}, 
+      #{read,jdbcType=INTEGER}, now())
+  </insert>
+  <insert id="insertSelective" parameterType="com.mmall.pojo.Message" >
+    insert into mmall_message
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="messageInfoId != null" >
+        message_info_id,
+      </if>
+      <if test="title != null" >
+        title,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+      <if test="messageUrl != null" >
+        message_url,
+      </if>
+      <if test="operator != null" >
+        operator,
+      </if>
+      <if test="goalUser != null" >
+        goal_user,
+      </if>
+      <if test="read != null" >
+        reador,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="messageInfoId != null" >
+        #{messageInfoId,jdbcType=INTEGER},
+      </if>
+      <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="messageUrl != null" >
+        #{messageUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="operator != null" >
+        #{operator,jdbcType=VARCHAR},
+      </if>
+      <if test="goalUser != null" >
+        #{goalUser,jdbcType=INTEGER},
+      </if>
+      <if test="read != null" >
+        #{read,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        now(),
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mmall.pojo.Message" >
+    update mmall_message
+    <set >
+      <if test="title != null" >
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null" >
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="messageUrl != null" >
+        message_url = #{messageUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="operator != null" >
+        operator = #{operator,jdbcType=VARCHAR},
+      </if>
+      <if test="goalUser != null" >
+        goal_user = #{goalUser,jdbcType=INTEGER},
+      </if>
+      <if test="read != null" >
+        reador = #{read,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = now(),
+      </if>
+    </set>
+    where message_info_id = #{messageInfoId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mmall.pojo.Message" >
+    update mmall_message
+    set title = #{title,jdbcType=VARCHAR},
+      content = #{content,jdbcType=VARCHAR},
+      message_url = #{messageUrl,jdbcType=VARCHAR},
+      operator = #{operator,jdbcType=VARCHAR},
+      goal_user = #{goalUser,jdbcType=INTEGER},
+      reador = #{reador,jdbcType=INTEGER},
+      create_time = now()
+    where message_info_id = #{messageInfoId,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectByUserId" resultMap="BaseResultMap" parameterType="int">
+    select
+    <include refid="Base_Column_List"/>
+    from mmall_message
+    where goal_user=#{userId}
+    order by create_time desc
+  </select>
+
+  <select id="selectNum" resultType="integer" parameterType="integer">
+    select count(*)
+    from mmall_message
+    where goal_user=#{userId,jdbcType=INTEGER}
+    and reador=0
+  </select>
+
+  <update id="setRead"  parameterType="integer">
+    update mmall_message
+    set reador=1
+    where goal_user=#{userId}
+  </update>
+
+  <insert id="batchInsert" parameterType="map">
+    insert into mmall_message (
+    title, content,message_url, operator, goal_user,reador, create_time)
+    values
+    <foreach collection="messageList" item="item" index="index"  separator="," >
+      (#{item.title},#{item.content},#{item.messageUrl},#{item.operator},#{item.goalUser},#{item.read},now())
+    </foreach>
+  </insert>
+
+  <delete id="deleteAll" parameterType="integer">
+    delete from mmall_message
+    where goal_user=#{userId,jdbcType=INTEGER}
+  </delete>
+
+  <delete id="deleteRead" parameterType="integer">
+    delete from mmall_message
+    where goal_user=#{userId,jdbcType=INTEGER}
+    and reador=1
+  </delete>
+
+</mapper>

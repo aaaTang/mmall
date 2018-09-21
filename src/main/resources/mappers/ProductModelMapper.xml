@@ -9,6 +9,7 @@
       <arg column="price" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
       <arg column="unit" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="stock" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="image_name" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="status" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="orderby" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
@@ -16,7 +17,7 @@
     </constructor>
   </resultMap>
   <sql id="Base_Column_List" >
-    id, product_id, name, price, unit, stock, status, orderby, create_time, update_time
+    id, product_id, name, price, unit, stock, image_name, status, orderby, create_time, update_time
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
@@ -24,17 +25,34 @@
     from mmall_product_model
     where id = #{id,jdbcType=INTEGER}
   </select>
+
+  <select id="selectByIdProductId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select
+    <include refid="Base_Column_List" />
+    from mmall_product_model
+    where id = #{id,jdbcType=INTEGER}
+    and product_id=#{productId,jdbcType=INTEGER}
+    and status=1
+  </select>
+
+  <select id="selectByProductId" parameterType="integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from mmall_product_model
+    where product_id=#{productId,jdbcType=INTEGER}
+  </select>
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from mmall_product_model
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.mmall.pojo.ProductModel" >
     insert into mmall_product_model (id, product_id, name, 
-      price, unit, stock, 
+      price, unit, stock, image_name,
       status, orderby, create_time, 
       update_time)
     values (#{id,jdbcType=INTEGER}, #{productId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, 
-      #{price,jdbcType=DECIMAL}, #{unit,jdbcType=VARCHAR}, #{stock,jdbcType=INTEGER}, 
+      #{price,jdbcType=DECIMAL}, #{unit,jdbcType=VARCHAR}, #{stock,jdbcType=INTEGER}, #{imageName,jdbcType=VARCHAR},
       #{status,jdbcType=INTEGER}, #{orderby,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
       #{updateTime,jdbcType=TIMESTAMP})
   </insert>
@@ -152,7 +170,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
 
-  <select id="selectModelList" parameterType="integer" resultMap="BaseResultMap">
+  <select id="selectModelList" parameterType="map" resultMap="BaseResultMap">
     SELECT
     <include refid="Base_Column_List"/>
     FROM mmall_product_model

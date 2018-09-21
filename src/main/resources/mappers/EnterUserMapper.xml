@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mmall.dao.EnterUserMapper" >
+  <resultMap id="BaseResultMap" type="com.mmall.pojo.EnterUser" >
+    <constructor >
+      <idArg column="enter_user_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="enter_user_password" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="enter_coding" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="enter_name" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="telephone" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="emer_telephone" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="discount" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="head_img" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="balance" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="phone" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="fax" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="qq" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="leperson" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="tex_type" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="invoice_bank" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="invoice_count" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="invoice_number" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="invoice_address" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="invoice_phone" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    enter_user_id, enter_user_password, enter_coding, enter_name, telephone, emer_telephone, 
+    discount, head_img, balance, phone, fax, qq, leperson, tex_type, invoice_bank, invoice_count, 
+    invoice_number, invoice_address, invoice_phone, create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from mmall_enter_user
+    where enter_user_id = #{enterUserId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from mmall_enter_user
+    where enter_user_id = #{enterUserId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mmall.pojo.EnterUser" >
+    insert into mmall_enter_user (enter_user_id, enter_user_password, enter_coding, 
+      enter_name, telephone, emer_telephone, 
+      discount, head_img, balance, 
+      phone, fax, qq, leperson, 
+      tex_type, invoice_bank, invoice_count, 
+      invoice_number, invoice_address, invoice_phone, 
+      create_time, update_time)
+    values (#{enterUserId,jdbcType=INTEGER}, #{enterUserPassword,jdbcType=VARCHAR}, #{enterCoding,jdbcType=VARCHAR}, 
+      #{enterName,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{emerTelephone,jdbcType=VARCHAR}, 
+      #{discount,jdbcType=INTEGER}, #{headImg,jdbcType=VARCHAR}, #{balance,jdbcType=INTEGER}, 
+      #{phone,jdbcType=VARCHAR}, #{fax,jdbcType=VARCHAR}, #{qq,jdbcType=VARCHAR}, #{leperson,jdbcType=VARCHAR}, 
+      #{texType,jdbcType=VARCHAR}, #{invoiceBank,jdbcType=VARCHAR}, #{invoiceCount,jdbcType=VARCHAR}, 
+      #{invoiceNumber,jdbcType=VARCHAR}, #{invoiceAddress,jdbcType=VARCHAR}, #{invoicePhone,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.mmall.pojo.EnterUser" >
+    insert into mmall_enter_user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="enterUserId != null" >
+        enter_user_id,
+      </if>
+      <if test="enterUserPassword != null" >
+        enter_user_password,
+      </if>
+      <if test="enterCoding != null" >
+        enter_coding,
+      </if>
+      <if test="enterName != null" >
+        enter_name,
+      </if>
+      <if test="telephone != null" >
+        telephone,
+      </if>
+      <if test="emerTelephone != null" >
+        emer_telephone,
+      </if>
+      <if test="discount != null" >
+        discount,
+      </if>
+      <if test="headImg != null" >
+        head_img,
+      </if>
+      <if test="balance != null" >
+        balance,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="fax != null" >
+        fax,
+      </if>
+      <if test="qq != null" >
+        qq,
+      </if>
+      <if test="leperson != null" >
+        leperson,
+      </if>
+      <if test="texType != null" >
+        tex_type,
+      </if>
+      <if test="invoiceBank != null" >
+        invoice_bank,
+      </if>
+      <if test="invoiceCount != null" >
+        invoice_count,
+      </if>
+      <if test="invoiceNumber != null" >
+        invoice_number,
+      </if>
+      <if test="invoiceAddress != null" >
+        invoice_address,
+      </if>
+      <if test="invoicePhone != null" >
+        invoice_phone,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="enterUserId != null" >
+        #{enterUserId,jdbcType=INTEGER},
+      </if>
+      <if test="enterUserPassword != null" >
+        #{enterUserPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="enterCoding != null" >
+        #{enterCoding,jdbcType=VARCHAR},
+      </if>
+      <if test="enterName != null" >
+        #{enterName,jdbcType=VARCHAR},
+      </if>
+      <if test="telephone != null" >
+        #{telephone,jdbcType=VARCHAR},
+      </if>
+      <if test="emerTelephone != null" >
+        #{emerTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="discount != null" >
+        #{discount,jdbcType=INTEGER},
+      </if>
+      <if test="headImg != null" >
+        #{headImg,jdbcType=VARCHAR},
+      </if>
+      <if test="balance != null" >
+        #{balance,jdbcType=INTEGER},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="fax != null" >
+        #{fax,jdbcType=VARCHAR},
+      </if>
+      <if test="qq != null" >
+        #{qq,jdbcType=VARCHAR},
+      </if>
+      <if test="leperson != null" >
+        #{leperson,jdbcType=VARCHAR},
+      </if>
+      <if test="texType != null" >
+        #{texType,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceBank != null" >
+        #{invoiceBank,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceCount != null" >
+        #{invoiceCount,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceNumber != null" >
+        #{invoiceNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceAddress != null" >
+        #{invoiceAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="invoicePhone != null" >
+        #{invoicePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mmall.pojo.EnterUser" >
+    update mmall_enter_user
+    <set >
+      <if test="enterUserPassword != null" >
+        enter_user_password = #{enterUserPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="enterCoding != null" >
+        enter_coding = #{enterCoding,jdbcType=VARCHAR},
+      </if>
+      <if test="enterName != null" >
+        enter_name = #{enterName,jdbcType=VARCHAR},
+      </if>
+      <if test="telephone != null" >
+        telephone = #{telephone,jdbcType=VARCHAR},
+      </if>
+      <if test="emerTelephone != null" >
+        emer_telephone = #{emerTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="discount != null" >
+        discount = #{discount,jdbcType=INTEGER},
+      </if>
+      <if test="headImg != null" >
+        head_img = #{headImg,jdbcType=VARCHAR},
+      </if>
+      <if test="balance != null" >
+        balance = #{balance,jdbcType=INTEGER},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="fax != null" >
+        fax = #{fax,jdbcType=VARCHAR},
+      </if>
+      <if test="qq != null" >
+        qq = #{qq,jdbcType=VARCHAR},
+      </if>
+      <if test="leperson != null" >
+        leperson = #{leperson,jdbcType=VARCHAR},
+      </if>
+      <if test="texType != null" >
+        tex_type = #{texType,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceBank != null" >
+        invoice_bank = #{invoiceBank,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceCount != null" >
+        invoice_count = #{invoiceCount,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceNumber != null" >
+        invoice_number = #{invoiceNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceAddress != null" >
+        invoice_address = #{invoiceAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="invoicePhone != null" >
+        invoice_phone = #{invoicePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where enter_user_id = #{enterUserId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mmall.pojo.EnterUser" >
+    update mmall_enter_user
+    set enter_user_password = #{enterUserPassword,jdbcType=VARCHAR},
+      enter_coding = #{enterCoding,jdbcType=VARCHAR},
+      enter_name = #{enterName,jdbcType=VARCHAR},
+      telephone = #{telephone,jdbcType=VARCHAR},
+      emer_telephone = #{emerTelephone,jdbcType=VARCHAR},
+      discount = #{discount,jdbcType=INTEGER},
+      head_img = #{headImg,jdbcType=VARCHAR},
+      balance = #{balance,jdbcType=INTEGER},
+      phone = #{phone,jdbcType=VARCHAR},
+      fax = #{fax,jdbcType=VARCHAR},
+      qq = #{qq,jdbcType=VARCHAR},
+      leperson = #{leperson,jdbcType=VARCHAR},
+      tex_type = #{texType,jdbcType=VARCHAR},
+      invoice_bank = #{invoiceBank,jdbcType=VARCHAR},
+      invoice_count = #{invoiceCount,jdbcType=VARCHAR},
+      invoice_number = #{invoiceNumber,jdbcType=VARCHAR},
+      invoice_address = #{invoiceAddress,jdbcType=VARCHAR},
+      invoice_phone = #{invoicePhone,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where enter_user_id = #{enterUserId,jdbcType=INTEGER}
+  </update>
+
+  <select id="checkUsername" resultType="int" parameterType="string">
+    select count(1) from mmall_enter_user
+    where enter_coding = #{username}
+  </select>
+
+  <select id="checkEmail" resultType="int" parameterType="string">
+    select count(1) from mmall_enter_user
+    where fax = #{email}
+  </select>
+
+  <select id="selectLogin" resultMap="BaseResultMap" parameterType="map">
+    select
+    <include refid="Base_Column_List" />
+    from mmall_enter_user
+    where enter_coding=#{username}
+    and enter_user_password=#{password}
+
+  </select>
+
+  <select id="checkPassword" resultType="int" parameterType="map">
+    select
+    count(1)
+    from mmall_enter_user
+    where enter_user_password=#{password}
+    and enter_user_id=#{userId}
+  </select>
+
+  <select id="checkEmailByUserId" resultType="int" parameterType="map">
+    select count(1) from mmall_enter_user
+    where fax=#{email}
+    and enter_user_id !=#{userId}
+  </select>
+
+  <select id="selectAllUserId" resultType="integer">
+    select enter_user_id
+    from mmall_enter_user
+  </select>
+
+</mapper>

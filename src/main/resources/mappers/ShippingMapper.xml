@@ -267,4 +267,8 @@
     and user_id=#{userId,jdbcType=INTEGER}
   </select>
 
+  <select id="selectMaxId" resultType="int">
+    select max(id) from mmall_shipping
+  </select>
+
 </mapper>

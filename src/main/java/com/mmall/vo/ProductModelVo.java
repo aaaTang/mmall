@@ -1,8 +1,15 @@
 package com.mmall.vo;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 
+@Getter
+@Setter
 public class ProductModelVo {
+
+    private Integer id;
 
     private String name;
 
@@ -10,37 +17,10 @@ public class ProductModelVo {
 
     private String unit;
 
-    private Integer stock;
+    private Integer quantity;
 
-    public String getName() {
-        return name;
-    }
+    private String imageName;
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    private boolean checked;
 
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public String getUnit() {
-        return unit;
-    }
-
-    public void setUnit(String unit) {
-        this.unit = unit;
-    }
-
-    public Integer getStock() {
-        return stock;
-    }
-
-    public void setStock(Integer stock) {
-        this.stock = stock;
-    }
 }
