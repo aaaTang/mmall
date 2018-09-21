@@ -19,7 +19,6 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/comment/")
-@Slf4j
 public class CommentController {
 
     @Autowired
@@ -46,7 +45,6 @@ public class CommentController {
     @RequestMapping("list.do")
     @ResponseBody
     public ServerResponse<List<CommentVo>> list(Integer productId){
-        log.info("测试");
         return iCommentService.list(productId);
     }
 
