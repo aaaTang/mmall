@@ -7,6 +7,7 @@ import com.mmall.pojo.EnterUser;
 import com.mmall.pojo.User;
 import com.mmall.service.ICommentService;
 import com.mmall.vo.CommentVo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/comment/")
+@Slf4j
 public class CommentController {
 
     @Autowired
@@ -44,6 +46,7 @@ public class CommentController {
     @RequestMapping("list.do")
     @ResponseBody
     public ServerResponse<List<CommentVo>> list(Integer productId){
+        log.info("测试");
         return iCommentService.list(productId);
     }
 
