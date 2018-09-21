@@ -46,8 +46,6 @@ public class CommentController {
     @RequestMapping("list.do")
     @ResponseBody
     public ServerResponse<List<CommentVo>> list(Integer productId){
-        log.info("再次测试");
-        log.info("测试");
         return iCommentService.list(productId);
     }
 
