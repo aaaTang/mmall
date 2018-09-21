@@ -19,6 +19,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/comment/")
+@Slf4j
 public class CommentController {
 
     @Autowired
