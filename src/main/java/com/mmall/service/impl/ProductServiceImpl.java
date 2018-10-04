@@ -369,7 +369,7 @@ public class ProductServiceImpl implements IProductService {
 
         List<ProductCollect> productCollectList=productCollectMapper.selectByUserId(userId);
         for (ProductCollect productCollect:productCollectList){
-            Product product=new Product();
+            Product product;
             product=productMapper.selectByPrimaryKey(productCollect.getProductId());
             productList.add(product);
         }
