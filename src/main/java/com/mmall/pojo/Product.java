@@ -12,6 +12,7 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+
 public class Product {
     private Integer id;
 
@@ -23,6 +24,10 @@ public class Product {
 
     private String mainImage;
 
+    private String smallImages;
+
+    private String bigImages;
+
     private String subImages;
 
     private String detail;
@@ -33,10 +38,17 @@ public class Product {
 
     private Integer stock;
 
+    private String brand;
+
+    private String weight;
+
+    private String originCountry;
+
+    private String itemDetail;
+
     private Integer status;
 
     private Date createTime;
 
     private Date updateTime;
-
 }

@@ -11,6 +11,7 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+
 public class PayInfo {
     private Integer id;
 
@@ -27,5 +28,4 @@ public class PayInfo {
     private Date createTime;
 
     private Date updateTime;
-
 }

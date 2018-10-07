@@ -22,8 +22,11 @@ import com.mmall.vo.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sun.misc.BASE64Decoder;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Random;
 
@@ -109,28 +112,43 @@ public class ProductServiceImpl implements IProductService {
         return array;
     }
 
-    private ProductDetailVo assembleProductDetailVo(Product product){
+    public String Base64Decode(String encodeStr) {
+        BASE64Decoder decoder = new BASE64Decoder();
+        try{
+            byte[] b = decoder.decodeBuffer(encodeStr);
+            String str = new String(b,"utf-8");
+            return str;
+        }catch (Exception e){
+            return null;
+        }
+    }
+
+    private ProductDetailVo assembleProductDetailVo(Product product)  {
         ProductDetailVo productDetailVo=new ProductDetailVo();
+
         productDetailVo.setId(product.getId());
-        productDetailVo.setSubtitle(product.getSubtitle());
+        productDetailVo.setCategoryId(product.getCategoryId());
+        productDetailVo.setName(Base64Decode(product.getName()));
+        productDetailVo.setSubtitle(Base64Decode(product.getSubtitle()));
+        productDetailVo.setMainImage(product.getMainImage());
+
+        productDetailVo.setSmallImages(stringToArray(product.getSmallImages()));
+        productDetailVo.setBigImages(stringToArray(product.getBigImages()));
+        productDetailVo.setSubImages(stringToArray(product.getSubImages()));
+        productDetailVo.setDetail(product.getDetail());
         productDetailVo.setSprice(product.getSprice());
         productDetailVo.setPrice(product.getPrice());
-        productDetailVo.setImageArray(stringToArray(product.getSubImages()));
-        productDetailVo.setCategoryId(product.getCategoryId());
-        productDetailVo.setDetail(stringToArray(product.getSubImages()));
-        productDetailVo.setName(product.getName());
+        productDetailVo.setStock(product.getStock());
+
+        productDetailVo.setBrand(Base64Decode(product.getBrand()));
+        productDetailVo.setWeight(Base64Decode(product.getWeight()));
+        productDetailVo.setOriginCountry(Base64Decode(product.getOriginCountry()));
+        productDetailVo.setItemDetail(Base64Decode(product.getItemDetail()));
+
         productDetailVo.setStatus(product.getStatus());
         productDetailVo.setStock(product.getStock());
 
-        //imageHost
-        productDetailVo.setImageHost(PropertiesUtil.getProperty("subimage.list.prefix"));
-        //parentCategoryId
-        Category category=categoryMapper.selectByPrimaryKey(product.getCategoryId());
-        if (category==null){
-            productDetailVo.setParentCategoryId(0);//默认根节点
-        }else{
-            productDetailVo.setParentCategoryId(category.getParentId());
-        }
+        //增加产品分类路径；
 
         List<ProductModel> productModelList=productModelMapper.selectModelList(product.getId());
         productDetailVo.setProductModelList(productModelList);
@@ -170,33 +188,33 @@ public class ProductServiceImpl implements IProductService {
         productListVo.setPrice(product.getSprice());
         productListVo.setSubtitle(product.getSubtitle());
         productListVo.setStatus(product.getStatus());
-        productListVo.setCategoryName(categoryMapper.selectByPrimaryKey(product.getCategoryId()).getName());
+        productListVo.setCategoryName(categoryMapper.selectByPrimaryKey(product.getCategoryId()).getCategoryName());
         return productListVo;
     }
 
-    private ProductListTestVo assembleProductListTestVo(Category category,List<ProductListVo> productListVo){
-        ProductListTestVo productListTestVo=new ProductListTestVo();
+//    private ProductListTestVo assembleProductListTestVo(Category category,List<ProductListVo> productListVo){
+//        ProductListTestVo productListTestVo=new ProductListTestVo();
+//
+//        productListTestVo.setName(category.getName());
+//        productListTestVo.setUrl("test");
+//        productListTestVo.setId(category.getId());
+//        productListTestVo.setParentId(category.getParentId());
+//        productListTestVo.setChildren(productListVo);
+//
+//        return productListTestVo;
+//    }
 
-        productListTestVo.setName(category.getName());
-        productListTestVo.setUrl("test");
-        productListTestVo.setId(category.getId());
-        productListTestVo.setParentId(category.getParentId());
-        productListTestVo.setChildren(productListVo);
-
-        return productListTestVo;
-    }
-
-    public ServerResponse<ProductListTestVo> getProductListTest(int categoryId){
-        List<Product> productList=productMapper.selectByCategoryId(categoryId);
-        List<ProductListVo> productListVoList= Lists.newArrayList();
-        for (Product productItem:productList){
-            ProductListVo productListVo=assembleProductListVo(productItem);
-            productListVoList.add(productListVo);
-        }
-        Category category=categoryMapper.selectByPrimaryKey(categoryId);
-        ProductListTestVo productListTestVo=assembleProductListTestVo(category,productListVoList);
-        return ServerResponse.createBySuccess(productListTestVo);
-    }
+//    public ServerResponse<ProductListTestVo> getProductListTest(int categoryId){
+//        List<Product> productList=productMapper.selectByCategoryId(categoryId);
+//        List<ProductListVo> productListVoList= Lists.newArrayList();
+//        for (Product productItem:productList){
+//            ProductListVo productListVo=assembleProductListVo(productItem);
+//            productListVoList.add(productListVo);
+//        }
+//        Category category=categoryMapper.selectByPrimaryKey(categoryId);
+//        ProductListTestVo productListTestVo=assembleProductListTestVo(category,productListVoList);
+//        return ServerResponse.createBySuccess(productListTestVo);
+//    }
 
     public ServerResponse<List<ProductSugVo>> getProductSugList(int categoryId) {
 
@@ -270,7 +288,7 @@ public class ProductServiceImpl implements IProductService {
         return ServerResponse.createBySuccess(productSugVoList);
     }
 
-    public ServerResponse<ProductDetailVo> getProductDetail(Integer productId){
+    public ServerResponse<ProductDetailVo> getProductDetail(Integer productId) {
 
         if (productId==null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
@@ -369,7 +387,7 @@ public class ProductServiceImpl implements IProductService {
 
         List<ProductCollect> productCollectList=productCollectMapper.selectByUserId(userId);
         for (ProductCollect productCollect:productCollectList){
-            Product product=new Product();
+            Product product;
             product=productMapper.selectByPrimaryKey(productCollect.getProductId());
             productList.add(product);
         }
