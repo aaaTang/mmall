@@ -6,7 +6,9 @@ import com.mmall.pojo.Message;
 import com.mmall.pojo.Product;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
+import sun.misc.BASE64Decoder;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -27,5 +29,18 @@ public class BigDecimalTest {
             test=name+String.valueOf(index);
             System.out.println(test);
         }
+    }
+
+    @Test
+    public void test2() throws IOException {
+
+        String test="6IGU5oOz77yIVGhpbmtDZW50cmXvvIk=";
+
+        BASE64Decoder decoder = new BASE64Decoder();
+        byte[] b = decoder.decodeBuffer(test);
+
+        String str = new String(b,"utf-8");
+        System.out.println(str);
+
     }
 }

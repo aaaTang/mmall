@@ -20,4 +20,6 @@ public interface CategoryMapper {
     List<Category> selectCategoryChildrenByParentId(Integer parentId);
 
     List<Category> getList();
+
+    Category selectByJdCode(int jdCode);
 }

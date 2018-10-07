@@ -1,23 +1,32 @@
 package com.mmall.pojo;
 
-import lombok.*;
-
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import java.util.Date;
-import java.util.Objects;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(of = "id")
+
 public class Category {
-    private Integer id;
+    private Integer categoryId;
+
+    private String categoryCode;
+
+    private Integer jdCode;
 
     private Integer parentId;
 
-    private String name;
+    private String parentCode;
 
-    private Boolean status;
+    private String categoryName;
+
+    private Integer level;
+
+    private Integer status;
 
     private Integer sortOrder;
 
