@@ -16,6 +16,9 @@
       <arg column="update_time" javaType="java.util.Date" jdbcType="TIMESTAMP" />
     </constructor>
   </resultMap>
+  <sql id="Base_Column_List">
+    category_id, category_code, jd_code, parent_id, parent_code, category_name, level,status,sort_order,create_time,update_time
+  </sql>
   <insert id="insert" parameterType="com.mmall.pojo.Category">
     insert into mmall_category (category_id, category_code, jd_code, 
       parent_id, parent_code, category_name, 
@@ -100,18 +103,15 @@
     </trim>
   </insert>
 
-  <sql id="Base_Column_List">
-    id, parent_id, name, status, sort_order, create_time, update_time
-  </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from mmall_category
-    where id = #{id,jdbcType=INTEGER}
+    where category_id = #{id,jdbcType=INTEGER}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from mmall_category
-    where id = #{id,jdbcType=INTEGER}
+    where category_id = #{id,jdbcType=INTEGER}
   </delete>
 
 
@@ -161,7 +161,7 @@
     select
     <include refid="Base_Column_List" />
     from mmall_category
-    order by id asc
+    order by category_id asc
   </select>
 
   <select id="selectByJdCode" resultMap="BaseResultMap">

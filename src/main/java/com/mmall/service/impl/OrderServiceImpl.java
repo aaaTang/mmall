@@ -24,6 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sun.misc.BASE64Decoder;
+
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -63,6 +65,17 @@ public class OrderServiceImpl implements IOrderService {
 
     @Autowired
     private IMessageService iMessageService;
+
+    public String Base64Decode(String encodeStr) {
+        BASE64Decoder decoder = new BASE64Decoder();
+        try{
+            byte[] b = decoder.decodeBuffer(encodeStr);
+            String str = new String(b,"utf-8");
+            return str;
+        }catch (Exception e){
+            return null;
+        }
+    }
 
     public ServerResponse createOrder(Integer userId,Integer shippingId){
         //从购物车中获取数据
@@ -323,19 +336,19 @@ public class OrderServiceImpl implements IOrderService {
         OrderItem orderItem=new OrderItem();
         Product product = productMapper.selectByPrimaryKey(productId);
         if (Const.ProductStatusEnum.ON_SALE.getCode()!=product.getStatus()){
-            return ServerResponse.createByErrorMessage("产品"+product.getName()+"不是在线售卖状态");
+            return ServerResponse.createByErrorMessage("产品"+Base64Decode(product.getName())+"不是在线售卖状态");
         }
 
         if (modelId==0){
             if (count>product.getStock()){
-                return ServerResponse.createByErrorMessage("产品"+product.getName()+"库存不足");
+                return ServerResponse.createByErrorMessage("产品"+Base64Decode(product.getName())+"库存不足");
             }
             orderItem.setModelStatus(0);
             orderItem.setTotalPrice(BigDecimalUtil.mul(product.getPrice().doubleValue(),count));
         }else {
             ProductModel productModel=productModelMapper.selectByPrimaryKey(modelId);
             if (count>productModel.getStock()){
-                return ServerResponse.createByErrorMessage("产品"+product.getName()+" 型号："+productModel.getName()+"库存不足");
+                return ServerResponse.createByErrorMessage("产品"+Base64Decode(product.getName())+" 型号："+productModel.getName()+"库存不足");
             }
             orderItem.setModelStatus(1);
             orderItem.setModelName(productModel.getName());
@@ -346,7 +359,7 @@ public class OrderServiceImpl implements IOrderService {
 
         orderItem.setUserId(userId);
         orderItem.setProductId(product.getId());
-        orderItem.setProductName(product.getName());
+        orderItem.setProductName(Base64Decode(product.getName()));
         orderItem.setProductImage(product.getSubImages().split(",")[0]);
         orderItem.setCurrentUnitPrice(product.getPrice());
         orderItem.setQuantity(count);
@@ -365,19 +378,19 @@ public class OrderServiceImpl implements IOrderService {
             OrderItem orderItem=new OrderItem();
             Product product = productMapper.selectByPrimaryKey(cartItem.getProductId());
             if (Const.ProductStatusEnum.ON_SALE.getCode()!=product.getStatus()){
-                return ServerResponse.createByErrorMessage("产品"+product.getName()+"不是在线售卖状态");
+                return ServerResponse.createByErrorMessage("产品"+Base64Decode(product.getName())+"不是在线售卖状态");
             }
 
             if (cartItem.getModelId()==0){
                 if (cartItem.getQuantity()>product.getStock()){
-                    return ServerResponse.createByErrorMessage("产品"+product.getName()+"库存不足");
+                    return ServerResponse.createByErrorMessage("产品"+Base64Decode(product.getName())+"库存不足");
                 }
                 orderItem.setModelStatus(0);
                 orderItem.setTotalPrice(BigDecimalUtil.mul(product.getPrice().doubleValue(),cartItem.getQuantity()));
             }else {
                 ProductModel productModel=productModelMapper.selectByPrimaryKey(cartItem.getModelId());
                 if (cartItem.getQuantity()>productModel.getStock()){
-                    return ServerResponse.createByErrorMessage("产品"+product.getName()+" 型号："+productModel.getName()+"库存不足");
+                    return ServerResponse.createByErrorMessage("产品"+Base64Decode(product.getName())+" 型号："+productModel.getName()+"库存不足");
                 }
                 orderItem.setModelStatus(1);
                 orderItem.setModelName(productModel.getName());
@@ -388,7 +401,7 @@ public class OrderServiceImpl implements IOrderService {
 
             orderItem.setUserId(userId);
             orderItem.setProductId(product.getId());
-            orderItem.setProductName(product.getName());
+            orderItem.setProductName(Base64Decode(product.getName()));
             orderItem.setProductImage(product.getSubImages().split(",")[0]);
             orderItem.setCurrentUnitPrice(product.getPrice());
             orderItem.setQuantity(cartItem.getQuantity());

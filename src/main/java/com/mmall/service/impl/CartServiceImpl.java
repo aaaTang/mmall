@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sun.misc.BASE64Decoder;
 
 
 import java.math.BigDecimal;
@@ -42,6 +43,17 @@ public class CartServiceImpl  implements ICartService {
 
     @Autowired
     private ProductModelMapper productModelMapper;
+
+    public String Base64Decode(String encodeStr) {
+        BASE64Decoder decoder = new BASE64Decoder();
+        try{
+            byte[] b = decoder.decodeBuffer(encodeStr);
+            String str = new String(b,"utf-8");
+            return str;
+        }catch (Exception e){
+            return null;
+        }
+    }
 
     public ServerResponse<CartVo> add(Integer userId,Integer count,Integer productId,Integer modelId){
         if (productId == null || count == null){
@@ -198,7 +210,7 @@ public class CartServiceImpl  implements ICartService {
                 Product product = productMapper.selectByPrimaryKey(cartItem.getProductId());
                 if (product != null) {
                     cartProductVo.setProductMainImage(product.getSubImages().split(",")[0]);
-                    cartProductVo.setProductName(product.getName());
+                    cartProductVo.setProductName(Base64Decode(product.getName()));
                     cartProductVo.setProductSubtitle(product.getSubtitle());
                     cartProductVo.setProductStatus(product.getStatus());
                     cartProductVo.setProductPrice(product.getPrice());

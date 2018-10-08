@@ -11,8 +11,6 @@ public class ProductListTestVo {
 
     private String name;
 
-    private String url;
-
     private int id;
 
     private int parentId;

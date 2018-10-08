@@ -47,6 +47,12 @@ public class ProductController {
 
     }
 
+    @RequestMapping("list_keyword.do")
+    @ResponseBody
+    public ServerResponse<PageInfo> listByKeyword(@RequestParam(value="pageNum",defaultValue = "1") int pageNum, @RequestParam(value="pageSize",defaultValue = "20") int pageSize,String keyword){
+        return iProductService.getProductListByKeyword(pageNum,pageSize,keyword);
+    }
+
     @RequestMapping("get_list.do")
     @ResponseBody
     public ServerResponse getList(@RequestParam(value="pageNum",defaultValue = "1") int pageNum, @RequestParam(value="pageSize",defaultValue = "10") int pageSize){
@@ -55,8 +61,8 @@ public class ProductController {
 
     @RequestMapping("list_test.do")
     @ResponseBody
-    public ServerResponse<ProductListTestVo> listTest(int categoryId){
-        return iProductService.getProductListTest(categoryId);
+    public ServerResponse<PageInfo> listTest(@RequestParam(value="pageNum",defaultValue = "1") int pageNum, @RequestParam(value="pageSize",defaultValue = "20") int pageSize,int categoryId){
+        return iProductService.getProductListTest(pageNum,pageSize,categoryId);
     }
 
     @RequestMapping("get_sug.do")

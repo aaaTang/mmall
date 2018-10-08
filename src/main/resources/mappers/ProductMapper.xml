@@ -283,7 +283,7 @@
   <select id="selectByNameAndCategoryIds" resultMap="BaseResultMap" parameterType="map">
 
     select
-    <include refid="Base_Column_List"></include>
+    <include refid="Base_Column_List"/>
     from mmall_product
     where status=1
     <if test="productName !=null">
@@ -304,6 +304,14 @@
     from mmall_product
     where category_id=#{categoryId}
 
+  </select>
+
+  <select id="selectByKeyword" resultMap="BaseResultMap" parameterType="String">
+    SELECT
+    <include refid="Base_Column_List"/>
+    from mmall_product
+    where status=1
+    and name like #{keyword}
   </select>
 
 </mapper>

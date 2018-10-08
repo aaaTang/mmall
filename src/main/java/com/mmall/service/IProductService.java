@@ -25,7 +25,7 @@ public interface IProductService {
 
     ServerResponse<PageInfo> getProductByKeywordCategory(String keyword,Integer categoryId,int pageNum,int pageSize,String orderBy);
 
-    ServerResponse<ProductListTestVo> getProductListTest(int categoryId);
+    ServerResponse<PageInfo> getProductListTest(int pageNum,int pageSize,int categoryId);
 
     ServerResponse<List<ProductSugVo>> getProductSugList(int categoryId);
 
@@ -38,5 +38,7 @@ public interface IProductService {
     ServerResponse<PageInfo> getCollect(Integer userId,int pageNum,int pageSize);
 
     ServerResponse queryCollect(Integer userId,Integer product);
+
+    ServerResponse getProductListByKeyword(int pageNum,int pageSize,String keyword);
 
 }

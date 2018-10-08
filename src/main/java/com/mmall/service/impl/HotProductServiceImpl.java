@@ -27,7 +27,8 @@ public class HotProductServiceImpl implements IHotProductService {
     private HotProductListVo assembleHotProductList(List<HotProduct> hotProductList){
         HotProductListVo hotProductListVo=new HotProductListVo();
         hotProductListVo.setHotProductList(hotProductList);
-        hotProductListVo.setImageHost(PropertiesUtil.getProperty("little.list.prefix","http://image.99sbl.com/"));
+        hotProductListVo.setImageHost("");
+        //hotProductListVo.setImageHost(PropertiesUtil.getProperty("little.list.prefix","http://image.99sbl.com/"));
         return hotProductListVo;
     }
 
