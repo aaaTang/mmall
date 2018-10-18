@@ -43,4 +43,11 @@ public class BigDecimalTest {
         System.out.println(str);
 
     }
+
+    @Test
+    public void test9(){
+        String test="1539108012445";
+        Long te=Long.valueOf(test);
+        System.out.println(te);
+    }
 }

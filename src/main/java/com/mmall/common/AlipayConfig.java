@@ -27,10 +27,11 @@ public class AlipayConfig {
     public static String alipay_public_key = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwTBLGo4+YYADjATOkLuGZqlz8CWeOEMVIZ/ne6zpRojCP8O/urOhilGYigpFKzcYkY7q2qD/xacGCvM165CNIpqTTqL28ZKqJhS9OU06pGjczGmmP52VtNjZsN//5ss1j0KqPXToMqegRqUcyOc+i3jxBn3XGfZKBYG903LZroV2Y6kQpq4MlyxOL2YhDRbvRIAF60FzQgbItyGzYpupF2aDATV2PO9aSom5ZG4Li6neeq/YGZ/h6R8tZqCFyYKjrPbdArH+priR7zw+gM+v7UuCpkbqpmzfewLDQJB6r2k/UBl/vx/D/ji6BT+AUuIwuNsQX1OXiJHwiNd88pJdtwIDAQAB";
 
     // 服务器异步通知页面路径  需http://格式的完整路径，不能加?id=123这类自定义参数，必须外网可以正常访问
-    //public static String notify_url = "http://99sbl.s1.natapp.cc/alipay.trade.page.pay-JAVA-UTF-8/notify_url.jsp";
+    public static String notify_url = "http://b2b.99sbl.com/order/alipayNotifyNotice.do";
 
     // 页面跳转同步通知页面路径 需http://格式的完整路径，不能加?id=123这类自定义参数，必须外网可以正常访问
-    public static String return_url = "http://b2b.99sbl.com/return_url.jsp";
+    //public static String return_url = "http://b2b.99sbl.com/return_url.jsp";
+    public static String return_url ="http://www.99sbl.com/#/success";
 
     // 签名方式
     public static String sign_type = "RSA2";

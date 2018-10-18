@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Getter
@@ -29,6 +31,8 @@ public class Category {
     private Integer status;
 
     private Integer sortOrder;
+
+    private BigDecimal discount;
 
     private Date createTime;
 

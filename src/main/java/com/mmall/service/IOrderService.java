@@ -5,6 +5,7 @@ import com.mmall.common.ServerResponse;
 import com.mmall.vo.OrderVo;
 
 import javax.servlet.http.HttpSession;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -49,5 +50,9 @@ public interface IOrderService {
     ServerResponse<String> manageSendGoods(Long orderNo);
 
     ServerResponse<String> query(String orderNo);
+
+    ServerResponse drawback(int userId, Long orderNo, int type, BigDecimal money, int reason, int refund_way, String description);
+
+    void setPayStatus(String orderNo);
 
 }

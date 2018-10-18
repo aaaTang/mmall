@@ -303,6 +303,7 @@
     <include refid="Base_Column_List"/>
     from mmall_product
     where category_id=#{categoryId}
+    order by order_by desc
 
   </select>
 

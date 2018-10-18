@@ -6,7 +6,7 @@ import com.mmall.vo.HotProductListVo;
 
 public interface IHotProductService {
 
-    ServerResponse<HotProductListVo> getList();
+    ServerResponse<HotProductListVo> getList(Integer role);
 
     ServerResponse saveOrUpdateProduct(HotProduct hotProduct);
 }
