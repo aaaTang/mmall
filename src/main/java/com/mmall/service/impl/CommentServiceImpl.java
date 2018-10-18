@@ -1,6 +1,7 @@
 package com.mmall.service.impl;
 
 import com.google.common.collect.Lists;
+import com.mmall.common.Const;
 import com.mmall.common.ServerResponse;
 import com.mmall.dao.*;
 import com.mmall.pojo.*;
@@ -78,6 +79,11 @@ public class CommentServiceImpl implements ICommentService {
 
         int rowCount=commentMapper.insert(comment);
 
+        Order newOrder=new Order();
+        newOrder.setId(order.getId());
+        newOrder.setStatus(Const.OrderStatusEnum.EVALUATE.getCode());
+        orderMapper.updateByPrimaryKeySelective(newOrder);
+
         if (rowCount>0){
             return ServerResponse.createBySuccess("插入消息成功");
         }
@@ -146,6 +152,14 @@ public class CommentServiceImpl implements ICommentService {
         updateComment.setNewContent(newContent);
         updateComment.setUpdateTime(comment.getUpdateTime());
         int rowCount=commentMapper.updateByPrimaryKeySelective(updateComment);
+
+        Order order=orderMapper.selectByUserIdAndOrderNo(userId,comment.getOrderNo());
+        Order newOrder=new Order();
+        newOrder.setId(order.getId());
+        newOrder.setStatus(Const.OrderStatusEnum.HAVAEVALUATE.getCode());
+
+        orderMapper.updateByPrimaryKeySelective(newOrder);
+
         if (rowCount>0){
             return ServerResponse.createBySuccess("添加追评成功");
         }

@@ -50,6 +50,8 @@ public class ProductDetailVo {
 
     private String updateTime;
 
+    private ProductPathVo productPathVo;
+
     private List<ProductModel> productModelList;
 
 }

@@ -141,7 +141,7 @@ public class UserController {
         return iUserService.getInformation(currentUser.getId());
     }
 
-    @RequestMapping("upload.do")
+    @RequestMapping(value="upload.do")
     @ResponseBody
     public ServerResponse upload(HttpSession session, @RequestParam(value="upload_file",required=false) MultipartFile file, HttpServletRequest request){
         User currentUser=(User)session.getAttribute(Const.CURRENT_USER);
@@ -161,7 +161,7 @@ public class UserController {
         if (response.issuccess()){
             session.setAttribute(Const.CURRENT_USER,response.getData());
         }
-        return ServerResponse.createBySuccess("设置用户头像成功");
+        return ServerResponse.createBySuccess(url);
     }
 
 

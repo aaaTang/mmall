@@ -10,6 +10,8 @@ import java.util.Date;
 @Setter
 public class OrderItemVo {
 
+    private Integer orderItemId;
+
     private Long orderNo;
 
     private Integer productId;

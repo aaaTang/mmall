@@ -5,14 +5,8 @@ import com.google.common.collect.Lists;
 import com.mmall.common.Const;
 import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
-import com.mmall.dao.CartMapper;
-import com.mmall.dao.HotWordsMapper;
-import com.mmall.dao.ProductMapper;
-import com.mmall.dao.ProductModelMapper;
-import com.mmall.pojo.Cart;
-import com.mmall.pojo.HotWords;
-import com.mmall.pojo.Product;
-import com.mmall.pojo.ProductModel;
+import com.mmall.dao.*;
+import com.mmall.pojo.*;
 import com.mmall.service.ICartService;
 import com.mmall.service.IHotWordsService;
 import com.mmall.util.BigDecimalUtil;
@@ -24,8 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-
+import sun.misc.BASE64Decoder;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -35,6 +28,12 @@ import java.util.List;
 public class CartServiceImpl  implements ICartService {
 
     @Autowired
+    private CategoryMapper categoryMapper;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
     private CartMapper cartMapper;
 
     @Autowired
@@ -42,6 +41,17 @@ public class CartServiceImpl  implements ICartService {
 
     @Autowired
     private ProductModelMapper productModelMapper;
+
+    public String Base64Decode(String encodeStr) {
+        BASE64Decoder decoder = new BASE64Decoder();
+        try{
+            byte[] b = decoder.decodeBuffer(encodeStr);
+            String str = new String(b,"utf-8");
+            return str;
+        }catch (Exception e){
+            return null;
+        }
+    }
 
     public ServerResponse<CartVo> add(Integer userId,Integer count,Integer productId,Integer modelId){
         if (productId == null || count == null){
@@ -180,7 +190,7 @@ public class CartServiceImpl  implements ICartService {
 
 
     private CartVo getCartVoLimit(Integer userId) {
-
+        User user=userMapper.selectByPrimaryKey(userId);
         CartVo cartVo = new CartVo();
         List<Cart> cartList = cartMapper.selectCartByUserId(userId);
         List<CartProductVo> cartProductVoList = Lists.newArrayList();
@@ -198,10 +208,19 @@ public class CartServiceImpl  implements ICartService {
                 Product product = productMapper.selectByPrimaryKey(cartItem.getProductId());
                 if (product != null) {
                     cartProductVo.setProductMainImage(product.getSubImages().split(",")[0]);
-                    cartProductVo.setProductName(product.getName());
+                    cartProductVo.setProductName(Base64Decode(product.getName()));
                     cartProductVo.setProductSubtitle(product.getSubtitle());
                     cartProductVo.setProductStatus(product.getStatus());
-                    cartProductVo.setProductPrice(product.getPrice());
+
+                    if (user.getRole()!=0){
+                        BigDecimal discount=getDiscount(product.getCategoryId());
+                        discount= BigDecimalUtil.sub(1,discount.doubleValue());
+                        BigDecimal price=BigDecimalUtil.mul(product.getPrice().doubleValue(),discount.doubleValue());
+                        cartProductVo.setProductPrice(price);
+
+                    }else {
+                        cartProductVo.setProductPrice(product.getPrice());
+                    }
 
                     int modelId = cartItem.getModelId();
                     if (modelId == 0) {
@@ -225,7 +244,7 @@ public class CartServiceImpl  implements ICartService {
                         }
                         cartProductVo.setQuantity(buyLimitCount);
                         cartProductVo.setModelExist(false);
-                        cartProductVo.setProductTotalPrice(BigDecimalUtil.mul(product.getPrice().doubleValue(), cartProductVo.getQuantity()));
+                        cartProductVo.setProductTotalPrice(BigDecimalUtil.mul(cartProductVo.getProductPrice().doubleValue(), cartProductVo.getQuantity()));
 
                         boolean temp = true;
                         if (cartItem.getChecked() == 1) {
@@ -302,6 +321,13 @@ public class CartServiceImpl  implements ICartService {
         cartVo.setImageHost(PropertiesUtil.getProperty("little.list.prefix"));
 
         return cartVo;
+    }
+
+    private BigDecimal getDiscount(Integer jd_code){
+        Category thirdCategory=categoryMapper.selectByJdCode(jd_code);
+        Category secondCategory=categoryMapper.selectByPrimaryKey(thirdCategory.getParentId());
+        Category firstCategory=categoryMapper.selectByPrimaryKey(secondCategory.getParentId());
+        return firstCategory.getDiscount();
     }
 
     private boolean getAllCheckedStatus(Integer userId){

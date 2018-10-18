@@ -15,17 +15,17 @@ public interface IProductService {
 
     ServerResponse<String> setSaleStatus(Integer productId,Integer status);
 
-    ServerResponse<ProductDetailVo> manageProductDetail(Integer productId);
+    //ServerResponse<ProductDetailVo> manageProductDetail(Integer productId);
 
-    ServerResponse<PageInfo> getProductList(int pageNum, int pageSize);
+    ServerResponse<PageInfo> getProductList(Integer role,int pageNum, int pageSize);
 
-    ServerResponse<PageInfo> searchProduct(String productName,Integer productId,int pageNum,int pageSize);
+    //ServerResponse<PageInfo> searchProduct(String productName,Integer productId,int pageNum,int pageSize);
 
-    ServerResponse<ProductDetailVo> getProductDetail(Integer productId);
+    ServerResponse<ProductDetailVo> getProductDetail(Integer role,Integer productId);
 
-    ServerResponse<PageInfo> getProductByKeywordCategory(String keyword,Integer categoryId,int pageNum,int pageSize,String orderBy);
+    ServerResponse<PageInfo> getProductByKeywordCategory(Integer role,String keyword,Integer categoryId,int pageNum,int pageSize,String orderBy);
 
-    ServerResponse<ProductListTestVo> getProductListTest(int categoryId);
+    ServerResponse<PageInfo> getProductListTest(Integer role,int pageNum,int pageSize,int categoryId);
 
     ServerResponse<List<ProductSugVo>> getProductSugList(int categoryId);
 
@@ -35,8 +35,10 @@ public interface IProductService {
 
     ServerResponse delectCollect(Integer userId,Integer productId);
 
-    ServerResponse<PageInfo> getCollect(Integer userId,int pageNum,int pageSize);
+    ServerResponse<PageInfo> getCollect(Integer role,Integer userId,int pageNum,int pageSize);
 
     ServerResponse queryCollect(Integer userId,Integer product);
+
+    ServerResponse getProductListByKeyword(Integer role,int pageNum,int pageSize,String keyword);
 
 }

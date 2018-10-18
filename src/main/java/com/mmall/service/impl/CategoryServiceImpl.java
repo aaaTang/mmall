@@ -78,20 +78,20 @@ public class CategoryServiceImpl implements ICategoryService {
 //     * @param categoryId
 //     * @return
 //     */
-//    public ServerResponse<List<Integer>> selectCategoryAndChildrenById(Integer categoryId){
-//
-//        Set<Category> categorySet= Sets.newHashSet();
-//
-//        findChildCategory(categorySet,categoryId);
-//
-//        List<Integer> categoryIdList= Lists.newArrayList();
-//        if(categoryId!=null){
-//            for (Category categoryItem:categorySet){
-//                categoryIdList.add(categoryItem.getId());
-//            }
-//        }
-//        return ServerResponse.createBySuccess(categoryIdList);
-//    }
+    public ServerResponse<List<Integer>> selectCategoryAndChildrenById(Integer categoryId){
+
+        Set<Category> categorySet= Sets.newHashSet();
+
+        findChildCategory(categorySet,categoryId);
+
+        List<Integer> categoryIdList= Lists.newArrayList();
+        if(categoryId!=null){
+            for (Category categoryItem:categorySet){
+                categoryIdList.add(categoryItem.getCategoryId());
+            }
+        }
+        return ServerResponse.createBySuccess(categoryIdList);
+    }
 
     public ServerResponse<List<Category>> getList(){
         List<Category> categoryList=categoryMapper.getList();
@@ -99,19 +99,19 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
 //    //递归算法
-//    private Set<Category> findChildCategory(Set<Category> categorySet,Integer categoryId){
-//
-//        Category category=categoryMapper.selectByPrimaryKey(categoryId);
-//        if (category!=null){
-//            categorySet.add(category);
-//        }
-//        //查找子节点，递归算法一定要有一个推出的条件
-//        List<Category> categoryList=categoryMapper.selectCategoryChildrenByParentId(categoryId);
-//        for (Category categoryItem:categoryList){
-//            findChildCategory(categorySet ,categoryItem.getId());
-//        }
-//        return categorySet;
-//    }
+    private Set<Category> findChildCategory(Set<Category> categorySet,Integer categoryId){
+
+        Category category=categoryMapper.selectByPrimaryKey(categoryId);
+        if (category!=null){
+            categorySet.add(category);
+        }
+        //查找子节点，递归算法一定要有一个推出的条件
+        List<Category> categoryList=categoryMapper.selectCategoryChildrenByParentId(categoryId);
+        for (Category categoryItem:categoryList){
+            findChildCategory(categorySet ,categoryItem.getCategoryId());
+        }
+        return categorySet;
+    }
 
     public ServerResponse<ProductPathVo> getProductPath(int productId) {
         Product product=productMapper.selectByPrimaryKey(productId);

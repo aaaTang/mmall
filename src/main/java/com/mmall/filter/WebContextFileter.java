@@ -21,7 +21,7 @@ public class WebContextFileter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 
-        String []  allowDomain= {"http://localhost:8080","http://mall.99sbl.com","http://b2b.99sbl.com"};
+        String []  allowDomain= {"http://localhost:8080","http://mall.99sbl.com","http://b2b.99sbl.com","http://www.99sbl.com","https://www.99sbl.com"};
         Set allowedOrigins= new HashSet(Arrays.asList(allowDomain));
         String originHeader=((HttpServletRequest) request).getHeader("Origin");
 

@@ -20,7 +20,7 @@ public class CategoryController {
 
     @RequestMapping("list.do")
     @ResponseBody
-    public ServerResponse getCategoryAndDeepChildrenCategory(HttpSession session, @RequestParam(value = "categoryId",defaultValue = "0") Integer categoryId){
+    public ServerResponse getCategoryAndDeepChildrenCategory( @RequestParam(value = "categoryId",defaultValue = "0") Integer categoryId){
         return iCategoryService.getList();
     }
 

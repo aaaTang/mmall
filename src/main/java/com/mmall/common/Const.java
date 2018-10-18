@@ -57,6 +57,8 @@ public class Const {
     }
 
     public enum OrderStatusEnum{
+
+        DISDEAL(-4,"订单未处理"),
         DELETE(-3,"订单删除"),
         CANCELED(-2,"订单取消"),
         UNSUBMIT(-1,"未提交审核"),
@@ -64,7 +66,13 @@ public class Const {
         FAILCHECK(1,"审核不通过"),
         SUCCESSCHECK(2,"审核通过"),
         EXPRESSON(3,"待收货"),
-        DELIVERY(4,"已完成");
+        DELIVERY(4,"已完成"),
+        UNDELIVERY(5,"未发货"),
+        DISPAY(6,"未付款"),
+        YESPAY(7,"已付款"),
+        DRAWBACK(8,"售后中"),
+        EVALUATE(9,"已评价"),
+        HAVAEVALUATE(10,"已追评");
 
         OrderStatusEnum(int code,String value){
             this.code=code;
@@ -83,6 +91,44 @@ public class Const {
 
         public static OrderStatusEnum codeOf(int code){
             for (OrderStatusEnum orderStatusEnum : values()){
+                if (orderStatusEnum.getCode() == code){
+                    return orderStatusEnum;
+                }
+            }
+            throw new RuntimeException("没有找到对应的枚举");
+        }
+
+    }
+
+    public enum ZFOrderStatusEnum{
+
+        DELETE(-3,"订单删除"),
+        CANCELED(-2,"订单取消"),
+        UNSUBMIT(-1,"未提交审核"),
+        ONCHECK(0,"正在审核"),
+        FAILCHECK(1,"审核不通过"),
+        SUCCESSCHECK(2,"审核通过"),
+        EXPRESSON(3,"已发货"),
+        DELIVERY(4,"已完成"),
+        UNDELIVERY(5,"未发货");
+
+        ZFOrderStatusEnum(int code,String value){
+            this.code=code;
+            this.value=value;
+        }
+        private String value;
+        private int code;
+
+        public String getValue() {
+            return value;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public static ZFOrderStatusEnum codeOf(int code){
+            for (ZFOrderStatusEnum orderStatusEnum : values()){
                 if (orderStatusEnum.getCode() == code){
                     return orderStatusEnum;
                 }
@@ -120,6 +166,7 @@ public class Const {
     }
 
     public enum PaymentTypeEnum{
+        UN_DEAL(0,"未处理"),
         ONLINE_PAY(1,"在线支付"),
         DELIVERY_PAY(2,"货到付款"),
         OFFLINE_PAY(3,"提交审核");
