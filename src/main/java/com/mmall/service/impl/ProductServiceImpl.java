@@ -476,4 +476,103 @@ public class ProductServiceImpl implements IProductService {
         pageInfo.setList(productListVoList);
         return ServerResponse.createBySuccess(pageInfo);
     }
+
+    public ServerResponse<PageInfo> getProduct(Integer zb,Integer categoryId,int pageNum,int pageSize){
+        Category category=categoryMapper.selectByPrimaryKey(categoryId);
+
+        PageHelper.startPage(pageNum,pageSize);
+        List<Product> productList;
+        if (zb==1) {
+            productList = productMapper.selectByCategoryId(category.getJdCode());
+        }else {
+            productList = productMapper.selectByCategoryIdZb(category.getJdCode());
+        }
+        List<ProductManageVo> productManageVoList=Lists.newArrayList();
+        for(Product product :productList){
+            ProductManageVo productManageVo=assemblePManageVo(product);
+            productManageVoList.add(productManageVo);
+        }
+
+        PageInfo pageInfo=new PageInfo(productList);
+        pageInfo.setList(productManageVoList);
+        return ServerResponse.createBySuccess(pageInfo);
+    }
+
+    private ProductManageVo assemblePManageVo(Product product){
+        ProductManageVo productManageVo=new ProductManageVo();
+
+        productManageVo.setId(product.getId());
+        productManageVo.setCategoryId(product.getCategoryId());
+        productManageVo.setName(Base64Decode(product.getName()));
+        productManageVo.setMainImage(product.getMainImage());
+        productManageVo.setSprice(product.getSprice());
+        productManageVo.setPrice(product.getPrice());
+        productManageVo.setStock(product.getStock());
+        productManageVo.setBrand(Base64Decode(product.getBrand()));
+        productManageVo.setStatus(product.getStatus());
+
+        return productManageVo;
+
+    }
+
+    public ServerResponse updateProduct(Integer id, String name, BigDecimal sprice, BigDecimal price, String brand, Integer status){
+        Product product=productMapper.selectByPrimaryKey(id);
+        if (product==null){
+            return ServerResponse.createByErrorMessage("该产品不存在；");
+        }
+
+        Product newProduct=new Product();
+        newProduct.setId(id);
+        newProduct.setName(Base64encode(name));
+        newProduct.setSprice(sprice);
+        newProduct.setPrice(price);
+        newProduct.setBrand(Base64encode(brand));
+        newProduct.setStatus(status);
+
+        int rowCount=productMapper.updateByPrimaryKeySelective(newProduct);
+        if (rowCount==0){
+            return ServerResponse.createByErrorMessage("更新失败！");
+        }
+        return ServerResponse.createBySuccess("更新成功！");
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

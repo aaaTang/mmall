@@ -7,6 +7,7 @@ import com.mmall.vo.ProductDetailVo;
 import com.mmall.vo.ProductListTestVo;
 import com.mmall.vo.ProductSugVo;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface IProductService {
@@ -40,5 +41,9 @@ public interface IProductService {
     ServerResponse queryCollect(Integer userId,Integer product);
 
     ServerResponse getProductListByKeyword(Integer role,int pageNum,int pageSize,String keyword);
+
+    ServerResponse<PageInfo> getProduct(Integer zb,Integer categoryId,int pageNum,int pageSize);
+
+    ServerResponse updateProduct(Integer id, String name, BigDecimal sprice, BigDecimal price, String brand, Integer status);
 
 }

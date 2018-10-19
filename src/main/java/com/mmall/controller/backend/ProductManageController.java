@@ -10,7 +10,9 @@ import com.mmall.pojo.User;
 import com.mmall.service.IFileService;
 import com.mmall.service.IProductService;
 import com.mmall.service.IUserService;
+import com.mmall.util.BigDecimalUtil;
 import com.mmall.util.PropertiesUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,10 +25,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 @Controller
 @RequestMapping("/manage/product")
+@Slf4j
 public class ProductManageController {
 
     @Autowired
@@ -86,6 +90,41 @@ public class ProductManageController {
 //            return ServerResponse.createByErrorMessage("无权限操作");
 //        }
 //    }
+
+    @RequestMapping("list_category.do")
+    @ResponseBody
+    public ServerResponse getList(HttpSession session,Integer zb, Integer categoryId,@RequestParam(value="pageNum",defaultValue = "1") int pageNum,@RequestParam(value="pageSize",defaultValue = "15") int pageSize){
+        User user=(User)session.getAttribute(Const.CURRENT_USER);
+        if (user==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录管理员账号");
+        }
+        if (iUserService.checkAdminRole(user).issuccess()){
+            //添加分页
+            return iProductService.getProduct(zb,categoryId,pageNum,pageSize);
+        }else {
+            return ServerResponse.createByErrorMessage("无权限操作");
+        }
+    }
+
+    @RequestMapping("update.do")
+    @ResponseBody
+    public ServerResponse updateProduct(HttpSession session,Integer productId, String name, BigDecimal sprice, BigDecimal price,String brand,Integer status){
+        User user=(User)session.getAttribute(Const.CURRENT_USER);
+        if (user==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录管理员账号");
+        }
+        if (iUserService.checkAdminRole(user).issuccess()){
+            log.info(name);
+            return iProductService.updateProduct(productId,name,sprice,price,brand,status);
+            //return iProductService.getProduct(zb,categoryId,pageNum,pageSize);
+        }else {
+            return ServerResponse.createByErrorMessage("无权限操作");
+        }
+    }
+
+
+
+
 
 //    @RequestMapping("list.do")
 //    @ResponseBody
