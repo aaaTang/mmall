@@ -32,4 +32,8 @@ public interface ShippingMapper {
 
     int selectMaxId();
 
+    Shipping selectByPhone(String phone);
+
+    Shipping selectByName(String name);
+
 }

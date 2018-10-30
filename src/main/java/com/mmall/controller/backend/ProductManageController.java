@@ -114,15 +114,25 @@ public class ProductManageController {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录管理员账号");
         }
         if (iUserService.checkAdminRole(user).issuccess()){
-            log.info(name);
             return iProductService.updateProduct(productId,name,sprice,price,brand,status);
-            //return iProductService.getProduct(zb,categoryId,pageNum,pageSize);
         }else {
             return ServerResponse.createByErrorMessage("无权限操作");
         }
     }
 
-
+    @RequestMapping("change_category.do")
+    @ResponseBody
+    public ServerResponse changeCa(HttpSession session,Integer productId,Integer categoryId){
+        User user=(User)session.getAttribute(Const.CURRENT_USER);
+        if (user==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录管理员账号");
+        }
+        if (iUserService.checkAdminRole(user).issuccess()){
+            return iProductService.changeCategory(productId,categoryId);
+        }else {
+            return ServerResponse.createByErrorMessage("无权限操作");
+        }
+    }
 
 
 

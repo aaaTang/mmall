@@ -2,6 +2,7 @@ package com.mmall.service;
 
 import com.github.pagehelper.PageInfo;
 import com.mmall.common.ServerResponse;
+import com.mmall.vo.OrderNumVo;
 import com.mmall.vo.OrderVo;
 
 import javax.servlet.http.HttpSession;
@@ -45,13 +46,15 @@ public interface IOrderService {
 
     ServerResponse<OrderVo> manageDetail(Long orderNo);
 
-    ServerResponse<PageInfo> manageSearch(Long orderNo,int pageNum,int pageSize);
+    ServerResponse<PageInfo> manageSearch(Integer status,String name,Long orderNo,String phone,int pageNum,int pageSize);
 
-    ServerResponse<String> manageSendGoods(Long orderNo);
+    ServerResponse<String> manageSendGoods(Long orderNo,Integer type,String num);
 
     ServerResponse<String> query(String orderNo);
 
     ServerResponse drawback(int userId, Long orderNo, int type, BigDecimal money, int reason, int refund_way, String description);
+
+    ServerResponse<OrderNumVo> getOrderNum();
 
     void setPayStatus(String orderNo);
 

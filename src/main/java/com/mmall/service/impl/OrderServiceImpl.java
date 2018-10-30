@@ -880,24 +880,83 @@ public class OrderServiceImpl implements IOrderService {
         return ServerResponse.createByErrorMessage("订单不存在");
     }
 
-    public ServerResponse<PageInfo> manageSearch(Long orderNo,int pageNum,int pageSize){
-        PageHelper.startPage(pageNum,pageSize);
-        Order order=orderMapper.selectByOrderNo(orderNo);
-        if (order!=null){
-            List<OrderItem> orderItemList=orderItemMapper.getByOrderNo(orderNo);
-            OrderVo orderVo=assembleOrderVo(order,orderItemList);
-            PageInfo pageResult = new PageInfo(Lists.newArrayList(order));
-            pageResult.setList(Lists.newArrayList(orderVo));
+    public ServerResponse<PageInfo> manageSearch(Integer status,String name,Long orderNo,String phone,int pageNum,int pageSize){
+        if (name!=null&name!=""){
+            Shipping shipping=shippingMapper.selectByName(name);
+            if (shipping==null){
+                return ServerResponse.createByErrorMessage("该姓名没有订单");
+            }
+            PageHelper.startPage(pageNum,pageSize);
+            List<Order>  orderList=orderMapper.selectByUSerIdAndShippingid(shipping.getUserId(),shipping.getId(),status);
+            if (orderList==null){
+                return ServerResponse.createByErrorMessage("该姓名没有订单");
+            }
+            List<OrderVo> orderVoList=this.assembleOrderVoList(orderList,null);
+
+            PageInfo pageResult = new PageInfo(orderList);
+            pageResult.setList(orderVoList);
+
             return ServerResponse.createBySuccess(pageResult);
         }
-        return ServerResponse.createByErrorMessage("订单不存在");
+
+        if (phone!=null&phone!=""){
+            Shipping shipping=shippingMapper.selectByPhone(phone);
+            if (shipping==null){
+                return ServerResponse.createByErrorMessage("该手机号码没有订单");
+            }
+            PageHelper.startPage(pageNum,pageSize);
+            List<Order>  orderList=orderMapper.selectByUSerIdAndShippingid(shipping.getUserId(),shipping.getId(),status);
+            if (orderList==null){
+                return ServerResponse.createByErrorMessage("该手机号码没有订单");
+            }
+            List<OrderVo> orderVoList=this.assembleOrderVoList(orderList,null);
+
+            PageInfo pageResult = new PageInfo(orderList);
+            pageResult.setList(orderVoList);
+
+            return ServerResponse.createBySuccess(pageResult);
+        }
+
+        if(orderNo!=null){
+            PageHelper.startPage(pageNum,pageSize);
+            Order order=orderMapper.selectByOrderNo(orderNo);
+            if (order!=null){
+                List<OrderItem> orderItemList=orderItemMapper.getByOrderNo(orderNo);
+                OrderVo orderVo=assembleOrderVo(order,orderItemList);
+                PageInfo pageResult = new PageInfo(Lists.newArrayList(order));
+                pageResult.setList(Lists.newArrayList(orderVo));
+                return ServerResponse.createBySuccess(pageResult);
+            }
+            return ServerResponse.createByErrorMessage("订单不存在");
+        }
+
+        if (status!=null){
+            PageHelper.startPage(pageNum,pageSize);
+            List<Order> orderList=orderMapper.selectByStatus(status);
+            List<OrderVo> orderVoList=this.assembleOrderVoList(orderList,null);
+            PageInfo pageResult = new PageInfo(orderList);
+            pageResult.setList(orderVoList);
+
+            return ServerResponse.createBySuccess(pageResult);
+        }
+
+        PageHelper.startPage(pageNum,pageSize);
+        List<Order> orderList=orderMapper.selectAllOrder();
+        List<OrderVo> orderVoList=this.assembleOrderVoList(orderList,null);
+        PageInfo pageResult = new PageInfo(orderList);
+        pageResult.setList(orderVoList);
+
+        return ServerResponse.createBySuccess(pageResult);
+
     }
 
-    public ServerResponse<String> manageSendGoods(Long orderNo){
+    public ServerResponse<String> manageSendGoods(Long orderNo,Integer type,String num){
         Order order=orderMapper.selectByOrderNo(orderNo);
         if (order!=null){
-            if (order.getStatus()==Const.OrderStatusEnum.SUCCESSCHECK.getCode()){
+            if (order.getStatus()==Const.OrderStatusEnum.UNDELIVERY.getCode()){
                 order.setStatus(Const.OrderStatusEnum.EXPRESSON.getCode());
+                order.setExpressType(type);
+                order.setExpressNub(num);
                 order.setSendTime(new Date());
                 orderMapper.updateByPrimaryKeySelective(order);
                 return ServerResponse.createBySuccess("发货成功");
@@ -949,12 +1008,6 @@ public class OrderServiceImpl implements IOrderService {
         orderMapper.updateByPrimaryKeySelective(newOrder);
     }
 
-    public void ceshi(){
-        Long orderNoLong=Long.valueOf("1539448030009");
-        Order order=orderMapper.selectByOrderNo(orderNoLong);
-        System.out.println(order);
-    }
-
     public ServerResponse drawback(int userId, Long orderNo, int type, BigDecimal money, int reason, int refund_way, String description) {
         Order order=orderMapper.selectByUserIdAndOrderNo(userId,orderNo);
         if (order!=null){
@@ -989,4 +1042,20 @@ public class OrderServiceImpl implements IOrderService {
         }
         return ServerResponse.createByErrorMessage("订单不存在");
     }
+
+    public ServerResponse<OrderNumVo> getOrderNum(){
+
+        OrderNumVo orderNumVo=new OrderNumVo();
+
+        int undelivery=orderMapper.selectNumByStatus(Const.OrderStatusEnum.UNDELIVERY.getCode());
+        int expresson=orderMapper.selectNumByStatus(Const.OrderStatusEnum.EXPRESSON.getCode());
+        int drawback=orderMapper.selectNumByStatus(Const.OrderStatusEnum.DRAWBACK.getCode());
+
+        orderNumVo.setUndelivery(undelivery);
+        orderNumVo.setExpresson(expresson);
+        orderNumVo.setDrawback(drawback);
+
+        return ServerResponse.createBySuccess(orderNumVo);
+    }
+
 }

@@ -17,6 +17,10 @@ public class Const {
 
     public static final int Decimal_digits=2;
 
+    public interface RedisCacheExtime{
+        int REDIS_SEESION_EXTIME=60*30;//30分钟
+    }
+
     public interface ProductListOrderBy{
 
         Set<String> PRICE_ASC_DESC= Sets.newHashSet("price_desc","price_asc");
@@ -91,44 +95,6 @@ public class Const {
 
         public static OrderStatusEnum codeOf(int code){
             for (OrderStatusEnum orderStatusEnum : values()){
-                if (orderStatusEnum.getCode() == code){
-                    return orderStatusEnum;
-                }
-            }
-            throw new RuntimeException("没有找到对应的枚举");
-        }
-
-    }
-
-    public enum ZFOrderStatusEnum{
-
-        DELETE(-3,"订单删除"),
-        CANCELED(-2,"订单取消"),
-        UNSUBMIT(-1,"未提交审核"),
-        ONCHECK(0,"正在审核"),
-        FAILCHECK(1,"审核不通过"),
-        SUCCESSCHECK(2,"审核通过"),
-        EXPRESSON(3,"已发货"),
-        DELIVERY(4,"已完成"),
-        UNDELIVERY(5,"未发货");
-
-        ZFOrderStatusEnum(int code,String value){
-            this.code=code;
-            this.value=value;
-        }
-        private String value;
-        private int code;
-
-        public String getValue() {
-            return value;
-        }
-
-        public int getCode() {
-            return code;
-        }
-
-        public static ZFOrderStatusEnum codeOf(int code){
-            for (ZFOrderStatusEnum orderStatusEnum : values()){
                 if (orderStatusEnum.getCode() == code){
                     return orderStatusEnum;
                 }

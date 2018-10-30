@@ -46,4 +46,6 @@ public interface IProductService {
 
     ServerResponse updateProduct(Integer id, String name, BigDecimal sprice, BigDecimal price, String brand, Integer status);
 
+    ServerResponse changeCategory(Integer productId,Integer categoryId);
+
 }

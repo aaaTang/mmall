@@ -40,11 +40,11 @@ public class RedisPool {
     }
 
     public static void returnBrokenResource(Jedis jedis){
-        pool.returnBrokenResource(jedis);
+            pool.returnBrokenResource(jedis);
     }
 
     public static void returnResource(Jedis jedis){
-        pool.returnResource(jedis);
+            pool.returnResource(jedis);
     }
 
     public static void main(String[] args) {

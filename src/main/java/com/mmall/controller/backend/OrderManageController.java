@@ -8,6 +8,7 @@ import com.mmall.common.ServerResponse;
 import com.mmall.pojo.User;
 import com.mmall.service.IOrderService;
 import com.mmall.service.IUserService;
+import com.mmall.vo.OrderNumVo;
 import com.mmall.vo.OrderVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -59,13 +60,13 @@ public class OrderManageController {
 
     @RequestMapping("search.do")
     @ResponseBody
-    public ServerResponse<PageInfo> orderSearch(HttpSession session, Long orderNo,@RequestParam(value = "pageNum",defaultValue = "1") int pageNum, @RequestParam(value = "pageSize",defaultValue = "10") int pageSize){
+    public ServerResponse<PageInfo> orderSearch(HttpSession session,Integer status,String name, Long orderNo,String phone,@RequestParam(value = "pageNum",defaultValue = "1") int pageNum, @RequestParam(value = "pageSize",defaultValue = "10") int pageSize){
         User user=(User)session.getAttribute(Const.CURRENT_USER);
         if (user==null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录管理员账号");
         }
         if (iUserService.checkAdminRole(user).issuccess()){
-            return iOrderService.manageSearch(orderNo,pageNum,pageSize);
+            return iOrderService.manageSearch(status,name,orderNo,phone,pageNum,pageSize);
         }else {
             return ServerResponse.createByErrorMessage("无权限操作");
         }
@@ -73,13 +74,27 @@ public class OrderManageController {
 
     @RequestMapping("send_goods.do")
     @ResponseBody
-    public ServerResponse<String> orderSendGoods(HttpSession session, Long orderNo){
+    public ServerResponse<String> orderSendGoods(HttpSession session, Long orderNo,Integer type,String num){
         User user=(User)session.getAttribute(Const.CURRENT_USER);
         if (user==null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录管理员账号");
         }
         if (iUserService.checkAdminRole(user).issuccess()){
-            return iOrderService.manageSendGoods(orderNo);
+            return iOrderService.manageSendGoods(orderNo,type,num);
+        }else {
+            return ServerResponse.createByErrorMessage("无权限操作");
+        }
+    }
+
+    @RequestMapping("getNum.do")
+    @ResponseBody
+    public ServerResponse<OrderNumVo> getNum(HttpSession session){
+        User user=(User)session.getAttribute(Const.CURRENT_USER);
+        if (user==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录管理员账号");
+        }
+        if (iUserService.checkAdminRole(user).issuccess()){
+            return iOrderService.getOrderNum();
         }else {
             return ServerResponse.createByErrorMessage("无权限操作");
         }

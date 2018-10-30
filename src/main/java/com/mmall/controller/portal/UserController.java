@@ -3,12 +3,16 @@ package com.mmall.controller.portal;
 
 import com.google.common.collect.Maps;
 import com.mmall.common.Const;
+import com.mmall.common.RedisPool;
 import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.User;
 import com.mmall.service.IFileService;
 import com.mmall.service.IUserService;
+import com.mmall.util.CookieUtil;
+import com.mmall.util.JsonUtil;
 import com.mmall.util.PropertiesUtil;
+import com.mmall.util.RedisPoolUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.Map;
 
@@ -44,12 +49,15 @@ public class UserController {
     @RequestMapping(value="login.do",method = RequestMethod.POST)
     @ResponseBody
 
-    public ServerResponse<User> login(String username, String password, HttpSession session){
+    public ServerResponse<User> login(String username, String password, HttpSession session, HttpServletResponse httpServletResponse,HttpServletRequest httpServletRequest){
 
         ServerResponse<User> response=iUserService.login(username,password);
-
         if (response.issuccess()){
-            session.setAttribute(Const.CURRENT_USER,response.getData());
+            //session.setAttribute(Const.CURRENT_USER,response.getData());
+            CookieUtil.writeLoginToken(httpServletResponse,session.getId());
+            CookieUtil.readLoginToken(httpServletRequest);
+            CookieUtil.delLoginToken(httpServletRequest,httpServletResponse);
+            RedisPoolUtil.setEx(session.getId(), JsonUtil.obj2String(response.getData()),Const.RedisCacheExtime.REDIS_SEESION_EXTIME);
         }
         return response;
     }
@@ -73,6 +81,7 @@ public class UserController {
     public ServerResponse<String> checkValid(String str,String type){
 
         return iUserService.checkValid(str,type);
+
     }
 
     @RequestMapping(value="get_user_info.do",method = RequestMethod.POST)
@@ -141,27 +150,54 @@ public class UserController {
         return iUserService.getInformation(currentUser.getId());
     }
 
-    @RequestMapping(value="upload.do")
+//    @RequestMapping(value="upload.do")
+//    @ResponseBody
+//    public ServerResponse upload(HttpSession session, @RequestParam(value="upload_file",required=false) MultipartFile file, HttpServletRequest request){
+//        User currentUser=(User)session.getAttribute(Const.CURRENT_USER);
+//        if (currentUser==null) {
+//            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"未登录，需要强制登录status=10");
+//        }
+//        String path=request.getSession().getServletContext().getRealPath("upload");
+//        String targetFileName=iFileService.uploadImg(file,path);
+//        String url= PropertiesUtil.getProperty("ftp.server.headimg.prefix")+targetFileName;
+//        Map fileMap= Maps.newHashMap();
+//
+//        fileMap.put("uri",targetFileName);
+//        fileMap.put("url",url);
+//
+//        currentUser.setHeadImg(url);
+//        ServerResponse<User> response=iUserService.updateInformation(currentUser);
+//        if (response.issuccess()){
+//            session.setAttribute(Const.CURRENT_USER,response.getData());
+//        }
+//        return ServerResponse.createBySuccess(url);
+//    }
+
+    @RequestMapping("upload.do")
     @ResponseBody
-    public ServerResponse upload(HttpSession session, @RequestParam(value="upload_file",required=false) MultipartFile file, HttpServletRequest request){
-        User currentUser=(User)session.getAttribute(Const.CURRENT_USER);
-        if (currentUser==null) {
-            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"未登录，需要强制登录status=10");
-        }
-        String path=request.getSession().getServletContext().getRealPath("upload");
-        String targetFileName=iFileService.uploadImg(file,path);
-        String url= PropertiesUtil.getProperty("ftp.server.headimg.prefix")+targetFileName;
-        Map fileMap= Maps.newHashMap();
+    public ServerResponse upload(HttpSession session,@RequestParam(value="upload_file",required=false) MultipartFile file, HttpServletRequest request){
 
-        fileMap.put("uri",targetFileName);
-        fileMap.put("url",url);
-
-        currentUser.setHeadImg(url);
-        ServerResponse<User> response=iUserService.updateInformation(currentUser);
-        if (response.issuccess()){
-            session.setAttribute(Const.CURRENT_USER,response.getData());
+        User user=(User)session.getAttribute(Const.CURRENT_USER);
+        if (user==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录管理员账号");
         }
-        return ServerResponse.createBySuccess(url);
+        if (iUserService.checkAdminRole(user).issuccess()){
+            String path=request.getSession().getServletContext().getRealPath("upload");
+
+            String targetFileName=iFileService.upload(file,path);
+            String url=PropertiesUtil.getProperty("ftp.server.http.prefix")+targetFileName;
+
+            Map fileMap= Maps.newHashMap();
+
+            fileMap.put("uri",targetFileName);
+            fileMap.put("url",url);
+
+            return ServerResponse.createBySuccess(fileMap);
+
+        }else {
+            return ServerResponse.createByErrorMessage("无权限操作");
+        }
+
     }
 
 

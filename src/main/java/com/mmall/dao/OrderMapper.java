@@ -28,5 +28,9 @@ public interface OrderMapper {
 
     List<Order> selectByYear(@Param("userId") Integer userId,@Param("tempStartTime") String tempStartTime,@Param("tempEndTime")String tempEndTime);
 
+    List<Order> selectByUSerIdAndShippingid(@Param("userId") Integer userId,@Param("shippingId") Integer shippingId,@Param("status") Integer status);
 
+    List<Order> selectByStatus(Integer status);
+
+    int selectNumByStatus(Integer status);
 }

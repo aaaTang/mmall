@@ -1,5 +1,6 @@
 package com.mmall.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import java.security.MessageDigest;
@@ -7,6 +8,7 @@ import java.security.MessageDigest;
 /**
  * Created by geely
  */
+@Slf4j
 public class MD5Util {
 
     private static String byteArrayToHexString(byte b[]) {
@@ -24,6 +26,10 @@ public class MD5Util {
         int d1 = n / 16;
         int d2 = n % 16;
         return hexDigits[d1] + hexDigits[d2];
+
+
+
+
     }
 
     /**

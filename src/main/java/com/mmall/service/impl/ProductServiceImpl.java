@@ -18,22 +18,20 @@ import com.mmall.service.ICategoryService;
 import com.mmall.service.IProductService;
 import com.mmall.util.BigDecimalUtil;
 import com.mmall.util.DataTimeUtil;
-import com.mmall.util.PropertiesUtil;
 import com.mmall.vo.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
-import javax.rmi.CORBA.Util;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Random;
 
+@Slf4j
 @Service("iProductService")
 public class ProductServiceImpl implements IProductService {
 
@@ -536,6 +534,21 @@ public class ProductServiceImpl implements IProductService {
         return ServerResponse.createBySuccess("更新成功！");
     }
 
+    public ServerResponse changeCategory(Integer productId,Integer categoryId){
+        Product product=productMapper.selectByPrimaryKey(productId);
+        if (product==null){
+            return ServerResponse.createByErrorMessage("该产品id无对应产品");
+        }
+        Category category=categoryMapper.selectByPrimaryKey(categoryId);
+        Product newProduct=new Product();
+        newProduct.setId(productId);
+        newProduct.setCategoryId(category.getJdCode());
+        int rowCount=productMapper.updateByPrimaryKeySelective(newProduct);
+        if (rowCount>0){
+            return ServerResponse.createBySuccess("更新成功！");
+        }
+        return ServerResponse.createByErrorMessage("更新失败！");
+    }
 
 
 
