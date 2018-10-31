@@ -2,11 +2,11 @@ package com.mmall.service.impl;
 
 import com.mmall.common.Const;
 import com.mmall.common.ServerResponse;
-import com.mmall.common.TokenCache;
 import com.mmall.dao.UserMapper;
 import com.mmall.service.IUserService;
 import com.mmall.pojo.User;
 import com.mmall.util.MD5Util;
+import com.mmall.util.RedisPoolUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -63,7 +63,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     public ServerResponse<String> checkValid(String str,String type){
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(type)){
+        if (StringUtils.isNotBlank(type)){
             //开始校验
             if (Const.USERNAME.equals(type)){
                 int resultCount=userMapper.checkUsername(str);
@@ -93,7 +93,7 @@ public class UserServiceImpl implements IUserService {
         }
 
         String question=userMapper.selectQuestionByUsername(username);
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(question)){
+        if (StringUtils.isNotBlank(question)){
             return ServerResponse.createBySuccess(question);
         }
         return ServerResponse.createByErrorMessage("找回密码的问题是空的");
@@ -105,7 +105,8 @@ public class UserServiceImpl implements IUserService {
         if (resultCount>0){
             //说明问题及答案是这个用户的，并且是正确的
             String forgetToken= UUID.randomUUID().toString();
-            TokenCache.setKey(TokenCache.TOKEN_PREFIX+username,forgetToken);
+            RedisPoolUtil.setEx(Const.TOKEN_PREFIX+username,forgetToken,Const.tokenCacheExtime.TOKEN_CACHE_EXTIME);
+
             return ServerResponse.createBySuccess(forgetToken);
 
         }
@@ -114,7 +115,7 @@ public class UserServiceImpl implements IUserService {
 
 
     public ServerResponse<String> forgetResetPassword(String username,String passwordNew,String forgetToken){
-        if (org.apache.commons.lang3.StringUtils.isBlank(forgetToken)){
+        if (StringUtils.isBlank(forgetToken)){
             return ServerResponse.createByErrorMessage("参数错误，token需要传递");
         }
         ServerResponse validResponse=this.checkValid(username,Const.USERNAME);
@@ -122,11 +123,12 @@ public class UserServiceImpl implements IUserService {
             //用户不存在
             return ServerResponse.createByErrorMessage("用户不存在");
         }
-        String token=TokenCache.getKey(TokenCache.TOKEN_PREFIX+username);
-        if (org.apache.commons.lang3.StringUtils.isBlank(token)){
+        String token=RedisPoolUtil.get(Const.TOKEN_PREFIX+username);
+
+        if (StringUtils.isBlank(token)){
             return ServerResponse.createByErrorMessage("token无效或者过期");
         }
-        if (org.apache.commons.lang3.StringUtils.equals(forgetToken,token)){
+        if (StringUtils.equals(forgetToken,token)){
             String md5Password=MD5Util.MD5EncodeUtf8(passwordNew);
             int rowCount=userMapper.updatePasswordByUsername(username,md5Password);
 
