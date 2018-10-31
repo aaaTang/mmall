@@ -1,6 +1,5 @@
 package com.mmall.filter;
 
-import com.mmall.common.ServerResponse;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
