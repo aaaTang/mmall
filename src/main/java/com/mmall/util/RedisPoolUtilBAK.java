@@ -1,106 +1,104 @@
 package com.mmall.util;
 
-import com.mmall.common.RedisShardedPool;
+import com.mmall.common.RedisPool;
 import lombok.extern.slf4j.Slf4j;
-import redis.clients.jedis.ShardedJedis;
+import redis.clients.jedis.Jedis;
 
 @Slf4j
-public class RedisPoolUtil {
+public class RedisPoolUtilBAK {
 
     //重新设置key的有效期，单位是秒
     public static Long expire(String key,int exTime){
-        ShardedJedis jedis=null;
+        Jedis jedis=null;
         Long result=null;
         try {
-            jedis= RedisShardedPool.getJedis();
+            jedis= RedisPool.getJedis();
             result=jedis.expire(key,exTime);
         } catch (Exception e) {
             log.error("expire key:{} exTime:{} error",key,exTime,e);
-            RedisShardedPool.returnBrokenResource(jedis);
+            RedisPool.returnBrokenResource(jedis);
             return result;
         }
-        RedisShardedPool.returnResource(jedis);
+        RedisPool.returnResource(jedis);
         return result;
     }
 
     //exTime的单位是秒
     public static String setEx(String key,String value,int exTime){
-        ShardedJedis jedis=null;
+        Jedis jedis=null;
         String result=null;
         try {
-            jedis= RedisShardedPool.getJedis();
+            jedis= RedisPool.getJedis();
             result=jedis.setex(key,exTime,value);
         } catch (Exception e) {
             log.error("setex key:{} exTime:{} value:{} error",key,exTime,value,e);
-            RedisShardedPool.returnBrokenResource(jedis);
+            RedisPool.returnBrokenResource(jedis);
             return result;
         }
-        RedisShardedPool.returnResource(jedis);
+        RedisPool.returnResource(jedis);
         return result;
     }
 
     public static String set(String key,String value){
 
-        ShardedJedis jedis=null;
+        Jedis jedis=null;
         String result=null;
         try {
-            jedis= RedisShardedPool.getJedis();
+            jedis= RedisPool.getJedis();
             result=jedis.set(key,value);
         } catch (Exception e) {
             log.error("set key:{} value:{} error",key,value,e);
-            RedisShardedPool.returnBrokenResource(jedis);
+            RedisPool.returnBrokenResource(jedis);
             return result;
         }
-        RedisShardedPool.returnResource(jedis);
+        RedisPool.returnResource(jedis);
         return result;
     }
 
     public static String get(String key){
-        ShardedJedis jedis=null;
+        Jedis jedis=null;
         String result=null;
 
         try {
-            jedis= RedisShardedPool.getJedis();
+            jedis= RedisPool.getJedis();
             result=jedis.get(key);
         } catch (Exception e) {
             log.error("get key:{} error",key,e);
-            RedisShardedPool.returnBrokenResource(jedis);
+            RedisPool.returnBrokenResource(jedis);
             return result;
         }
-        RedisShardedPool.returnResource(jedis);
+        RedisPool.returnResource(jedis);
         return result;
     }
 
     public static Long del(String key){
-        ShardedJedis jedis=null;
+        Jedis jedis=null;
         Long result=null;
 
         try {
-            jedis= RedisShardedPool.getJedis();
+            jedis= RedisPool.getJedis();
             result=jedis.del(key);
         } catch (Exception e) {
             log.error("del key:{} error",key,e);
-            RedisShardedPool.returnBrokenResource(jedis);
+            RedisPool.returnBrokenResource(jedis);
             return result;
         }
-        RedisShardedPool.returnResource(jedis);
+        RedisPool.returnResource(jedis);
         return result;
     }
 
     public static void main(String[] args) {
-        ShardedJedis jedis=RedisShardedPool.getJedis();
+        Jedis jedis=RedisPool.getJedis();
 
-        RedisPoolUtilBAK.set("tang","wen");
+        RedisPoolUtil.set("tang","wen");
 
-        String value=RedisPoolUtilBAK.get("tang");
+        String value=RedisPoolUtil.get("tang");
 
-        System.out.println(value);
+        RedisPoolUtil.setEx("keyex","test",60*10);
 
-        RedisPoolUtilBAK.setEx("keyex","test",60*10);
+        RedisPoolUtil.expire("tang",60*20);
 
-        RedisPoolUtilBAK.expire("tang",60*20);
-
-        RedisPoolUtilBAK.del("tang");
+        RedisPoolUtil.del("tang");
 
         System.out.println("end");
 

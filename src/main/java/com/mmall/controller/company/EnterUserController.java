@@ -4,7 +4,6 @@ package com.mmall.controller.company;
 import com.mmall.common.Const;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.EnterUser;
-import com.mmall.pojo.User;
 import com.mmall.service.IEnterUserService;
 import com.mmall.util.CookieUtil;
 import com.mmall.util.JsonUtil;
