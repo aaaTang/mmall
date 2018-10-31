@@ -8,15 +8,20 @@ import com.mmall.pojo.EnterUser;
 import com.mmall.pojo.User;
 import com.mmall.service.ICategoryService;
 import com.mmall.service.IProductService;
+import com.mmall.util.CookieUtil;
+import com.mmall.util.JsonUtil;
+import com.mmall.util.RedisPoolUtil;
 import com.mmall.vo.ProductDetailVo;
 import com.mmall.vo.ProductListTestVo;
 import com.mmall.vo.ProductSugVo;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
@@ -32,8 +37,13 @@ public class ProductController {
 
     @RequestMapping("detail.do")
     @ResponseBody
-    public ServerResponse<ProductDetailVo> detail(HttpSession session,Integer productId){
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
+    public ServerResponse<ProductDetailVo> detail(HttpServletRequest httpServletRequest,Integer productId){
+        String loginToken=CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isEmpty(loginToken)){
+            return ServerResponse.createByErrorMessage("用户未登录，无法获取当前用户的信息");
+        }
+        String userStr=RedisPoolUtil.get(loginToken);
+        User user=JsonUtil.string2Obj(userStr,User.class);
         if (user==null){
             return iProductService.getProductDetail(0,productId);
         }else {
@@ -43,13 +53,18 @@ public class ProductController {
 
     @RequestMapping("list.do")
     @ResponseBody
-    public ServerResponse<PageInfo> list(HttpSession session,@RequestParam(value="keyword",required=false)String keyword,
+    public ServerResponse<PageInfo> list(HttpServletRequest httpServletRequest,@RequestParam(value="keyword",required=false)String keyword,
                                          @RequestParam(value="categoryId",required=false)Integer categoryId,
                                          @RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
                                          @RequestParam(value = "pageSize",defaultValue = "10")int pageSize,
                                          @RequestParam(value = "orderBy",defaultValue = "")String orderBy){
 
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
+        String loginToken=CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isEmpty(loginToken)){
+            return ServerResponse.createByErrorMessage("用户未登录，无法获取当前用户的信息");
+        }
+        String userStr=RedisPoolUtil.get(loginToken);
+        User user=JsonUtil.string2Obj(userStr,User.class);
         if (user==null){
             return iProductService.getProductByKeywordCategory(0,keyword,categoryId,pageNum,pageSize,orderBy);
         }else {
@@ -61,9 +76,14 @@ public class ProductController {
 
     @RequestMapping("list_keyword.do")
     @ResponseBody
-    public ServerResponse<PageInfo> listByKeyword(HttpSession session,@RequestParam(value="pageNum",defaultValue = "1") int pageNum, @RequestParam(value="pageSize",defaultValue = "20") int pageSize,String keyword){
+    public ServerResponse<PageInfo> listByKeyword(HttpServletRequest httpServletRequest,@RequestParam(value="pageNum",defaultValue = "1") int pageNum, @RequestParam(value="pageSize",defaultValue = "20") int pageSize,String keyword){
 
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
+        String loginToken=CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isEmpty(loginToken)){
+            return ServerResponse.createByErrorMessage("用户未登录，无法获取当前用户的信息");
+        }
+        String userStr=RedisPoolUtil.get(loginToken);
+        User user=JsonUtil.string2Obj(userStr,User.class);
         if (user==null){
             return iProductService.getProductListByKeyword(0,pageNum,pageSize,keyword);
         }else {
@@ -73,9 +93,14 @@ public class ProductController {
 
     @RequestMapping("get_list.do")
     @ResponseBody
-    public ServerResponse getList(HttpSession session,@RequestParam(value="pageNum",defaultValue = "1") int pageNum, @RequestParam(value="pageSize",defaultValue = "10") int pageSize){
+    public ServerResponse getList(HttpServletRequest httpServletRequest,@RequestParam(value="pageNum",defaultValue = "1") int pageNum, @RequestParam(value="pageSize",defaultValue = "10") int pageSize){
 
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
+        String loginToken=CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isEmpty(loginToken)){
+            return ServerResponse.createByErrorMessage("用户未登录，无法获取当前用户的信息");
+        }
+        String userStr=RedisPoolUtil.get(loginToken);
+        User user=JsonUtil.string2Obj(userStr,User.class);
         if (user==null){
             return iProductService.getProductList(0,pageNum,pageSize);
         }else {
@@ -85,9 +110,14 @@ public class ProductController {
 
     @RequestMapping("list_test.do")
     @ResponseBody
-    public ServerResponse<PageInfo> listTest(HttpSession session,@RequestParam(value="pageNum",defaultValue = "1") int pageNum, @RequestParam(value="pageSize",defaultValue = "20") int pageSize,int categoryId){
+    public ServerResponse<PageInfo> listTest(HttpServletRequest httpServletRequest, @RequestParam(value="pageNum",defaultValue = "1") int pageNum, @RequestParam(value="pageSize",defaultValue = "20") int pageSize, int categoryId){
 
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
+        String loginToken=CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isEmpty(loginToken)){
+            return ServerResponse.createByErrorMessage("用户未登录，无法获取当前用户的信息");
+        }
+        String userStr=RedisPoolUtil.get(loginToken);
+        User user=JsonUtil.string2Obj(userStr,User.class);
         if (user==null){
             return iProductService.getProductListTest(0,pageNum,pageSize,categoryId);
         }else {

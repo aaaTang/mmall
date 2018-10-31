@@ -28,6 +28,8 @@ public class ShippingController {
     @ResponseBody
     public ServerResponse add(HttpSession session, Shipping shipping,@RequestParam(value = "status1",defaultValue = "false") String status){
 
+
+
         if (session.getAttribute(Const.CURRENT_USER)==null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }

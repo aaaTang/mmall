@@ -99,4 +99,14 @@ public class EnterUserServiceImpl implements IEnterUserService {
         return ServerResponse.createByErrorMessage("更新个人信息失败");
     }
 
+    public ServerResponse<EnterUser> getInformation(Integer userId){
+
+        EnterUser enterUser =enterUserMapper.selectByPrimaryKey(userId);
+        if (enterUser==null){
+            return ServerResponse.createByErrorMessage("找不到当前用户");
+        }
+        enterUser.setEnterUserPassword(StringUtils.EMPTY);
+        return ServerResponse.createBySuccess(enterUser);
+    }
+
 }

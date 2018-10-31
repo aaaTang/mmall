@@ -88,12 +88,14 @@ public class UserController {
     @ResponseBody
     public ServerResponse<User> getUserInfo(HttpServletRequest httpServletRequest){
         //User user=(User) session.getAttribute(Const.CURRENT_USER);
+
         String loginToken=CookieUtil.readLoginToken(httpServletRequest);
         if (StringUtils.isEmpty(loginToken)){
             return ServerResponse.createByErrorMessage("用户未登录，无法获取当前用户的信息");
         }
         String userStr=RedisPoolUtil.get(loginToken);
         User user=JsonUtil.string2Obj(userStr,User.class);
+
         if (user!=null){
             user.setPassword(null);
             return ServerResponse.createBySuccess(user);
@@ -148,12 +150,19 @@ public class UserController {
 
     @RequestMapping(value="get_information.do",method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse<User> get_information(HttpSession session){
-        User currentUser=(User)session.getAttribute(Const.CURRENT_USER);
-        if (currentUser==null) {
+    public ServerResponse<User> get_information(HttpServletRequest httpServletRequest){
+
+        String loginToken=CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isEmpty(loginToken)){
+            return ServerResponse.createByErrorMessage("用户未登录，无法获取当前用户的信息");
+        }
+        String userStr=RedisPoolUtil.get(loginToken);
+        User user=JsonUtil.string2Obj(userStr,User.class);
+
+        if (user==null) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"未登录，需要强制登录status=10");
         }
-        return iUserService.getInformation(currentUser.getId());
+        return iUserService.getInformation(user.getId());
     }
 
 //    @RequestMapping(value="upload.do")
@@ -181,9 +190,15 @@ public class UserController {
 
     @RequestMapping("upload.do")
     @ResponseBody
-    public ServerResponse upload(HttpSession session,@RequestParam(value="upload_file",required=false) MultipartFile file, HttpServletRequest request){
+    public ServerResponse upload(HttpServletRequest httpServletRequest,@RequestParam(value="upload_file",required=false) MultipartFile file, HttpServletRequest request){
 
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
+        String loginToken=CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isEmpty(loginToken)){
+            return ServerResponse.createByErrorMessage("用户未登录，无法获取当前用户的信息");
+        }
+        String userStr=RedisPoolUtil.get(loginToken);
+        User user=JsonUtil.string2Obj(userStr,User.class);
+
         if (user==null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"用户未登录，请登录管理员账号");
         }
