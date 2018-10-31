@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 @Controller
@@ -37,12 +38,13 @@ public class EnterUserController {
     @RequestMapping(value="login.do",method = RequestMethod.POST)
     @ResponseBody
 
-    public ServerResponse<EnterUser> login(String username, String password, HttpSession session){
+    public ServerResponse<EnterUser> login(String username, String password, HttpSession session, HttpServletResponse httpServletResponse){
 
         ServerResponse<EnterUser> response=iEnterUserService.login(username,password);
 
         if (response.issuccess()){
-            session.setAttribute(Const.CURRENT_USER,response.getData());
+            CookieUtil.writeLoginToken(httpServletResponse,session.getId());
+            RedisPoolUtil.setEx(session.getId(), JsonUtil.obj2String(response.getData()),Const.RedisCacheExtime.REDIS_SEESION_EXTIME);
         }
         return response;
     }

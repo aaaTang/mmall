@@ -6,6 +6,7 @@ import com.mmall.common.Const;
 import com.mmall.common.RedisPool;
 import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
+import com.mmall.pojo.EnterUser;
 import com.mmall.pojo.User;
 import com.mmall.service.IFileService;
 import com.mmall.service.IUserService;
@@ -87,7 +88,6 @@ public class UserController {
     @RequestMapping(value="get_user_info.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<User> getUserInfo(HttpServletRequest httpServletRequest){
-        //User user=(User) session.getAttribute(Const.CURRENT_USER);
 
         String loginToken=CookieUtil.readLoginToken(httpServletRequest);
         if (StringUtils.isEmpty(loginToken)){
@@ -95,6 +95,7 @@ public class UserController {
         }
         String userStr=RedisPoolUtil.get(loginToken);
         User user=JsonUtil.string2Obj(userStr,User.class);
+        EnterUser enterUser=JsonUtil.string2Obj(userStr,EnterUser.class);
 
         if (user!=null){
             user.setPassword(null);

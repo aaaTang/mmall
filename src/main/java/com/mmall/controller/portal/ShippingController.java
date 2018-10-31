@@ -9,12 +9,17 @@ import com.mmall.pojo.EnterUser;
 import com.mmall.pojo.Shipping;
 import com.mmall.pojo.User;
 import com.mmall.service.IShippingService;
+import com.mmall.util.CookieUtil;
+import com.mmall.util.JsonUtil;
+import com.mmall.util.RedisPoolUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 @Controller
@@ -26,21 +31,20 @@ public class ShippingController {
 
     @RequestMapping("add.do")
     @ResponseBody
-    public ServerResponse add(HttpSession session, Shipping shipping,@RequestParam(value = "status1",defaultValue = "false") String status){
+    public ServerResponse add(HttpServletRequest httpServletRequest, Shipping shipping, @RequestParam(value = "status1",defaultValue = "false") String status){
 
-
-
-        if (session.getAttribute(Const.CURRENT_USER)==null){
+        String loginToken=CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isEmpty(loginToken)){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
+        String userStr=RedisPoolUtil.get(loginToken);
+        User user=JsonUtil.string2Obj(userStr,User.class);
+        EnterUser enterUser=JsonUtil.string2Obj(userStr,EnterUser.class);
 
-        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
-        if (className.equals("com.mmall.pojo.User")){
-            User user=(User)session.getAttribute(Const.CURRENT_USER);
+        if (user.getId()!=null){
             return iShippingService.add(user.getId(),shipping,status);
         }
-        if (className.equals("com.mmall.pojo.EnterUser")){
-            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
+        if (enterUser.getEnterUserId()!=null){
             return iShippingService.add(enterUser.getEnterUserId(),shipping,status);
         }
         return ServerResponse.createByErrorMessage("参数错误");

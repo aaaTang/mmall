@@ -139,20 +139,24 @@ public class ProductController {
 
     @RequestMapping("add_collect.do")
     @ResponseBody
-    public ServerResponse addCollect(HttpSession session,int productId){
-        if (session.getAttribute(Const.CURRENT_USER)==null){
+    public ServerResponse addCollect(HttpServletRequest httpServletRequest,int productId){
+
+        String loginToken=CookieUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isEmpty(loginToken)){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
-        if (className.equals("com.mmall.pojo.User")){
-            User user=(User)session.getAttribute(Const.CURRENT_USER);
+        String userStr=RedisPoolUtil.get(loginToken);
+        User user=JsonUtil.string2Obj(userStr,User.class);
+        EnterUser enterUser=JsonUtil.string2Obj(userStr,EnterUser.class);
+
+        if (user.getId()!=null){
             return iProductService.addCollect(user.getId(),productId);
         }
-        if (className.equals("com.mmall.pojo.EnterUser")){
-            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
+        if (enterUser.getEnterUserId()!=null){
             return iProductService.addCollect(enterUser.getEnterUserId(),productId);
         }
         return ServerResponse.createByErrorMessage("参数错误");
+
     }
 
     @RequestMapping("delete_collect.do")
