@@ -185,4 +185,11 @@ public class ProductController {
         return iCategoryService.getProductPath(productId);
     }
 
+    @RequestMapping("get_all_product.do")
+    @ResponseBody
+    public ServerResponse getAllProdcut(){
+        return iProductService.getAllProduct();
+    }
+
+
 }

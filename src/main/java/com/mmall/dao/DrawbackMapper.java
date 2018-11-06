@@ -2,7 +2,6 @@ package com.mmall.dao;
 
 import com.mmall.pojo.Drawback;
 import org.apache.ibatis.annotations.Param;
-import sun.util.resources.ga.LocaleNames_ga;
 
 public interface DrawbackMapper {
     int deleteByPrimaryKey(Integer id);

@@ -28,21 +28,18 @@ public class UnionPayController {
 
     @RequestMapping("pay.do")
     @ResponseBody
-    public ServerResponse pay(HttpServletRequest request, HttpServletResponse response, HttpSession session, Long orderNo) throws IOException {
+    public void pay(HttpServletRequest request, HttpServletResponse response, HttpSession session, Long orderNo) throws IOException {
 
-        if (session.getAttribute(Const.CURRENT_USER)==null){
-            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
-        }
         String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
         if (className.equals("com.mmall.pojo.User")){
             User user=(User)session.getAttribute(Const.CURRENT_USER);
-            return iUnionPayService.pay(request, response,orderNo,user.getId());
+            iUnionPayService.pay(request, response,orderNo,user.getId());
         }
         if (className.equals("com.mmall.pojo.EnterUser")){
             EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
-            return iUnionPayService.pay(request, response,orderNo,enterUser.getEnterUserId());
+            iUnionPayService.pay(request, response,orderNo,enterUser.getEnterUserId());
         }
-        return ServerResponse.createByErrorMessage("参数错误");
+
     }
 
     @RequestMapping(value = "test.do")

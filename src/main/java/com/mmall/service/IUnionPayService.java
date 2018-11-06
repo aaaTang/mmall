@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public interface IUnionPayService {
 
-    ServerResponse pay(HttpServletRequest request, HttpServletResponse response,Long orderNo, Integer userId) throws IOException;
+    void pay(HttpServletRequest request, HttpServletResponse response,Long orderNo, Integer userId) throws IOException;
 
     void payTest(HttpServletRequest request, HttpServletResponse response) throws IOException;
 

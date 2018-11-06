@@ -21,5 +21,7 @@ public interface CategoryMapper {
 
     List<Category> getList();
 
+    List<Category> getAllSecondCategory();
+
     Category selectByJdCode(int jdCode);
 }

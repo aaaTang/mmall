@@ -3,6 +3,7 @@ package com.mmall.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import com.mmall.common.CategoryCode;
 import com.mmall.common.Const;
 import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
@@ -550,37 +551,55 @@ public class ProductServiceImpl implements IProductService {
         return ServerResponse.createByErrorMessage("更新失败！");
     }
 
+    public ServerResponse<List<CategoryVo>> getAllProduct(){
 
+//        List<Category>  categoryList=categoryMapper.getAllSecondCategory();
+//        List<CategoryProduct> categoryProductList=Lists.newArrayList();
+//
+//        for(Category category:categoryList){
+//            CategoryProduct categoryProduct=assembleCategoryProduct(category.getJdCode());
+//            categoryProductList.add(categoryProduct);
+//        }
+//        return ServerResponse.createBySuccess(categoryProductList);
+        List<CategoryVo> categoryVoList=Lists.newArrayList();
+        List<Category>  categoryList=categoryMapper.getAllSecondCategory();
+        for(Category category:categoryList){
+            CategoryVo categoryVo=new CategoryVo();
+            categoryVo.setCategoryId(category.getCategoryId());
+            categoryVo.setCategoryName(category.getCategoryName());
 
+            if (category.getJdCode()==null){
+                categoryVo.setStatus(CategoryCode.NULL.getCode());
+                categoryVo.setStatusDesc(CategoryCode.NULL.getDesc());
+                categoryVo.setNumber(0);
+            }else {
+                List<Product> productList=productMapper.selectByCategoryId(category.getJdCode());
+                if (productList==null){
+                    categoryVo.setStatus(CategoryCode.EMPTY.getCode());
+                    categoryVo.setStatusDesc(CategoryCode.EMPTY.getDesc());
+                    categoryVo.setNumber(0);
+                }else {
+                    categoryVo.setStatus(CategoryCode.FULL.getCode());
+                    categoryVo.setStatusDesc(CategoryCode.FULL.getDesc());
+                    categoryVo.setNumber(productList.size());
+                }
+            }
+            categoryVoList.add(categoryVo);
+        }
+        return ServerResponse.createBySuccess(categoryVoList);
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    private CategoryProduct assembleCategoryProduct(Integer categoryId){
+        List<ProductNumVo> productNumVoList=productMapper.selectAllProduct(categoryId);
+        for (ProductNumVo productNumVo:productNumVoList){
+            productNumVo.setBrand(Base64Decode(productNumVo.getBrand()));
+        }
+        CategoryProduct categoryProduct=new CategoryProduct();
+        categoryProduct.setCategoryId(categoryId);
+        categoryProduct.setCategoryName(categoryMapper.selectByJdCode(categoryId).getCategoryName());
+        categoryProduct.setProductNumVoList(productNumVoList);
+        return categoryProduct;
+    }
 
 
 

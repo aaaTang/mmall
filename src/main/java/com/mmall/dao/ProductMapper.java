@@ -1,6 +1,7 @@
 package com.mmall.dao;
 
 import com.mmall.pojo.Product;
+import com.mmall.vo.ProductNumVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -29,4 +30,6 @@ public interface ProductMapper {
     List<Product> selectByCategoryIdZb(@Param("categoryId") int categoryId);
 
     List<Product> selectByKeyword(String keyword);
+
+    List<ProductNumVo> selectAllProduct(Integer category);
 }

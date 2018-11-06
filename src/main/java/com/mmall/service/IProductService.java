@@ -3,9 +3,7 @@ package com.mmall.service;
 import com.github.pagehelper.PageInfo;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.Product;
-import com.mmall.vo.ProductDetailVo;
-import com.mmall.vo.ProductListTestVo;
-import com.mmall.vo.ProductSugVo;
+import com.mmall.vo.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -47,5 +45,7 @@ public interface IProductService {
     ServerResponse updateProduct(Integer id, String name, BigDecimal sprice, BigDecimal price, String brand, Integer status);
 
     ServerResponse changeCategory(Integer productId,Integer categoryId);
+
+    ServerResponse<List<CategoryVo>> getAllProduct();
 
 }

@@ -9,11 +9,6 @@ import org.junit.Test;
 import sun.misc.BASE64Decoder;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.*;
-
-import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
-
 public class BigDecimalTest {
 
     @Test

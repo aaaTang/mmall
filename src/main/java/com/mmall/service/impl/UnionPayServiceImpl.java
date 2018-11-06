@@ -40,12 +40,9 @@ public class UnionPayServiceImpl implements IUnionPayService {
 
     private String redictUrl = "http://www.baidu.com";
 
-    public ServerResponse pay(HttpServletRequest request, HttpServletResponse response, Long orderNo, Integer userId) throws IOException {
+    public void pay(HttpServletRequest request, HttpServletResponse response, Long orderNo, Integer userId) throws IOException {
 
         Order order = orderMapper.selectByUserIdAndOrderNo(userId,orderNo);
-        if(order == null){
-            return ServerResponse.createByErrorMessage("用户没有该订单");
-        }
 
         Order newOrder=new Order();
         newOrder.setId(order.getId());
@@ -122,7 +119,6 @@ public class UnionPayServiceImpl implements IUnionPayService {
         LogUtil.writeLog("打印请求HTML，此为请求报文，为联调排查问题的依据："+html);
         //将生成的html写到浏览器中完成自动跳转打开银联支付页面；这里调用signData之后，将html写到浏览器跳转到银联页面之前均不能对html中的表单项的名称和值进行修改，如果修改会导致验签不通过
         response.getWriter().write(html);
-        return ServerResponse.createBySuccess();
 
     }
 

@@ -24,10 +24,21 @@
       <arg column="update_time" javaType="java.util.Date" jdbcType="TIMESTAMP" />
     </constructor>
   </resultMap>
+    <!--<constructor>-->
+    <!--<arg column="brand" javaType="java.lang.String" jdbcType="VARCHAR" />-->
+    <!--<arg column="num" javaType="java.lang.Integer" jdbcType="INTEGER" />-->
+    <!--</constructor>-->
+  <resultMap id="ProductNumMap" type="com.mmall.vo.ProductNumVo">
+      <result column="brand" property="brand" jdbcType="VARCHAR"/>
+      <result column="count(id)" property="num" jdbcType="INTEGER"/>
+  </resultMap>
   <sql id="Base_Column_List">
     id, category_id, name, subtitle, main_image, small_images, big_images, sub_images, 
     detail, sprice, price, stock, brand, weight, origin_country, item_detail, status, 
     create_time, update_time
+  </sql>
+  <sql id="Product_Num_List">
+    brand,num
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -323,6 +334,14 @@
     from mmall_product
     where status=1
     and name like #{keyword}
+  </select>
+
+  <select id="selectAllProduct" resultMap="ProductNumMap" parameterType="integer">
+    select
+    brand ,count(id)
+    from mmall_product
+    where category_id=#{category}
+    group by brand
   </select>
 
 </mapper>

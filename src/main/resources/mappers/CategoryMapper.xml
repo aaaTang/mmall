@@ -168,6 +168,14 @@
     order by category_id asc
   </select>
 
+  <select id="getAllSecondCategory" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from mmall_category
+    where level=2
+    and jd_code is not null
+  </select>
+
   <select id="selectByJdCode" resultMap="BaseResultMap">
     SELECT
     <include refid="Base_Column_List" />
