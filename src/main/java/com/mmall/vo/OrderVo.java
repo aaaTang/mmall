@@ -35,6 +35,8 @@ public class OrderVo {
 
     private String statusDesc;  //状态的描述
 
+    private CheckDetailVo checkDetailVo;//审核状态描述，若不是审核订单则为null；
+
     private String paymentTime;
 
     private String sendTime;

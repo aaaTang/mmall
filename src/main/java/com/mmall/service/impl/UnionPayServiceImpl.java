@@ -82,7 +82,7 @@ public class UnionPayServiceImpl implements IUnionPayService {
         requestData.put("orderId", order.getOrderNo().toString());                          //商户订单号，8-40位数字字母，不能含“-”或“_”，可以自行定制规则
         requestData.put("txnTime", txnTime);        //订单发送时间，取系统时间，格式为YYYYMMDDhhmmss，必须取当前时间，否则会报txnTime无效
         requestData.put("currencyCode", "156");         			  //交易币种（境内商户一般是156 人民币）
-        requestData.put("txnAmt", order.getPayment().toString());             			      //交易金额，单位分，不要带小数点
+        requestData.put("txnAmt", order.getPayment().multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toString());             			      //交易金额，单位分，不要带小数点
         //requestData.put("reqReserved", "透传字段");        		      //请求方保留域，如需使用请启用即可；透传字段（可以实现商户自定义参数的追踪）本交易的后台通知,对本交易的交易状态查询交易、对账文件中均会原样返回，商户可以按需上传，长度为1-1024个字节。出现&={}[]符号时可能导致查询接口应答报文解析失败，建议尽量只传字母数字并使用|分割，或者可以最外层做一次base64编码(base64编码之后出现的等号不会导致解析失败可以不用管)。
 
         requestData.put("riskRateInfo", "{commodityName=思贝丽订单付款}");

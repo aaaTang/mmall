@@ -12,4 +12,6 @@ public interface IEnterUserService {
     ServerResponse<String> resetPassword(String passwordOld,String passwordNew,EnterUser enterUser);
 
     ServerResponse<EnterUser> updateInformation(EnterUser enterUser);
+
+    ServerResponse getAllEnterUser(Integer pageNum,Integer pageSize);
 }

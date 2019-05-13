@@ -27,9 +27,21 @@ public interface ProductMapper {
 
     List<Product> selectByCategoryId(@Param("categoryId") int categoryId);
 
+    List<Product> selectByCategoryIdAndBrand(@Param("categoryId") int categoryId,@Param("brand") String brand);
+
+    List<Product> selectByKeywordAndBrand(@Param("keyword") String keyword,@Param("brand") String brand);
+
     List<Product> selectByCategoryIdZb(@Param("categoryId") int categoryId);
 
     List<Product> selectByKeyword(String keyword);
 
     List<ProductNumVo> selectAllProduct(Integer category);
+
+    List<String> selectBrandByCategory(Integer categoryId);
+
+    List<String> selectBrandByKeyword(String keyword);
+
+    List<Integer> selectBrandNum(Integer categoryId);
+
+    Integer selectProductNumByCategoryId(Integer categoryId);
 }

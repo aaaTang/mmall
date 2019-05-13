@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache updateCheck="false">
+    <diskStore path="C:\cache\java-cache"/>
+    <defaultCache eternal="false" maxElementsInMemory="1000"
+                  overflowToDisk="false" diskPersistent="true" timeToIdleSeconds="0"
+                  timeToLiveSeconds="20" memoryStoreEvictionPolicy="LRU" />
+    <cache name="testCache" eternal="false" maxElementsInMemory="100"
+           overflowToDisk="false" diskPersistent="false" timeToIdleSeconds="0"
+           timeToLiveSeconds="300" memoryStoreEvictionPolicy="LRU" />
+</ehcache>

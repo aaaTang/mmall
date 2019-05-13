@@ -1,12 +1,13 @@
 package com.mmall.controller.portal;
 
-import com.mmall.common.Const;
-import com.mmall.common.ResponseCode;
-import com.mmall.common.ServerResponse;
 import com.mmall.pojo.EnterUser;
 import com.mmall.pojo.User;
 import com.mmall.service.IUnionPayService;
+import com.mmall.util.CookUtil;
+import com.mmall.util.JsonUtil;
+import com.mmall.util.RedisPoolUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 @Controller
@@ -28,18 +28,21 @@ public class UnionPayController {
 
     @RequestMapping("pay.do")
     @ResponseBody
-    public void pay(HttpServletRequest request, HttpServletResponse response, HttpSession session, Long orderNo) throws IOException {
-
-        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
-        if (className.equals("com.mmall.pojo.User")){
-            User user=(User)session.getAttribute(Const.CURRENT_USER);
-            iUnionPayService.pay(request, response,orderNo,user.getId());
+    public void pay(HttpServletRequest request, HttpServletResponse response, Long orderNo) throws IOException {
+        String token= CookUtil.readLoginToken(request);
+        if (StringUtils.isNotBlank(token)){
+            String userString= RedisPoolUtil.get(token);
+            if (userString!=null){
+                User user= JsonUtil.string2Obj(userString,User.class);
+                EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+                if (user.getId()!=null){
+                    iUnionPayService.pay(request, response,orderNo,user.getId());
+                }
+                if (enterUser.getEnterUserId()!=null){
+                    iUnionPayService.pay(request, response,orderNo,enterUser.getEnterUserId());
+                }
+            }
         }
-        if (className.equals("com.mmall.pojo.EnterUser")){
-            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
-            iUnionPayService.pay(request, response,orderNo,enterUser.getEnterUserId());
-        }
-
     }
 
     @RequestMapping(value = "test.do")

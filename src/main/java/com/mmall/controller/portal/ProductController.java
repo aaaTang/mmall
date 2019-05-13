@@ -1,23 +1,27 @@
 package com.mmall.controller.portal;
 
 import com.github.pagehelper.PageInfo;
-import com.mmall.common.Const;
 import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.EnterUser;
 import com.mmall.pojo.User;
 import com.mmall.service.ICategoryService;
+import com.mmall.service.IFloorService;
 import com.mmall.service.IProductService;
+import com.mmall.util.CookUtil;
+import com.mmall.util.JsonUtil;
+import com.mmall.util.RedisPoolUtil;
+import com.mmall.vo.PageInfoAndBrandVo;
 import com.mmall.vo.ProductDetailVo;
-import com.mmall.vo.ProductListTestVo;
 import com.mmall.vo.ProductSugVo;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Controller
@@ -30,69 +34,57 @@ public class ProductController {
     @Autowired
     private ICategoryService iCategoryService;
 
+    @Autowired
+    private IFloorService iFloorService;
+
     @RequestMapping("detail.do")
     @ResponseBody
-    public ServerResponse<ProductDetailVo> detail(HttpSession session,Integer productId){
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
-        if (user==null){
-            return iProductService.getProductDetail(0,productId);
-        }else {
-            return iProductService.getProductDetail(user.getRole(),productId);
+    public ServerResponse<ProductDetailVo> detail(Integer productId){
+        if (productId==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
         }
+        return iProductService.getProductDetail(productId);
     }
 
     @RequestMapping("list.do")
     @ResponseBody
-    public ServerResponse<PageInfo> list(HttpSession session,@RequestParam(value="keyword",required=false)String keyword,
+    public ServerResponse<PageInfo> list(@RequestParam(value="keyword",required=false)String keyword,
                                          @RequestParam(value="categoryId",required=false)Integer categoryId,
                                          @RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
                                          @RequestParam(value = "pageSize",defaultValue = "10")int pageSize,
                                          @RequestParam(value = "orderBy",defaultValue = "")String orderBy){
 
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
-        if (user==null){
-            return iProductService.getProductByKeywordCategory(0,keyword,categoryId,pageNum,pageSize,orderBy);
-        }else {
-            return iProductService.getProductByKeywordCategory(user.getRole(),keyword,categoryId,pageNum,pageSize,orderBy);
-        }
-
-
+        return iProductService.getProductByKeywordCategory(keyword,categoryId,pageNum,pageSize,orderBy); 
     }
 
     @RequestMapping("list_keyword.do")
     @ResponseBody
-    public ServerResponse<PageInfo> listByKeyword(HttpSession session,@RequestParam(value="pageNum",defaultValue = "1") int pageNum, @RequestParam(value="pageSize",defaultValue = "20") int pageSize,String keyword){
-
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
-        if (user==null){
-            return iProductService.getProductListByKeyword(0,pageNum,pageSize,keyword);
-        }else {
-            return iProductService.getProductListByKeyword(user.getRole(),pageNum,pageSize,keyword);
-        }
+    public ServerResponse<PageInfoAndBrandVo> listByKeyword(@RequestParam(value="pageNum",defaultValue = "1") int pageNum, @RequestParam(value="pageSize",defaultValue = "20") int pageSize,String keyword){
+        return iProductService.getProductListByKeyword(pageNum,pageSize,keyword);
     }
 
     @RequestMapping("get_list.do")
     @ResponseBody
-    public ServerResponse getList(HttpSession session,@RequestParam(value="pageNum",defaultValue = "1") int pageNum, @RequestParam(value="pageSize",defaultValue = "10") int pageSize){
-
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
-        if (user==null){
-            return iProductService.getProductList(0,pageNum,pageSize);
-        }else {
-            return iProductService.getProductList(user.getRole(),pageNum,pageSize);
-        }
+    public ServerResponse getList(@RequestParam(value="pageNum",defaultValue = "1") int pageNum, @RequestParam(value="pageSize",defaultValue = "10") int pageSize){
+        return iProductService.getProductList(pageNum,pageSize);
+       
     }
 
     @RequestMapping("list_test.do")
     @ResponseBody
-    public ServerResponse<PageInfo> listTest(HttpSession session,@RequestParam(value="pageNum",defaultValue = "1") int pageNum, @RequestParam(value="pageSize",defaultValue = "20") int pageSize,int categoryId){
+    public ServerResponse<PageInfoAndBrandVo> listTest( @RequestParam(value="pageNum",defaultValue = "1") int pageNum, @RequestParam(value="pageSize",defaultValue = "20") int pageSize, int categoryId){
+        return iProductService.getProductListTest(pageNum,pageSize,categoryId);
+    }
 
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
-        if (user==null){
-            return iProductService.getProductListTest(0,pageNum,pageSize,categoryId);
-        }else {
-            return iProductService.getProductListTest(user.getRole(),pageNum,pageSize,categoryId);
+    @RequestMapping("list_brand.do")
+    @ResponseBody
+    public ServerResponse<PageInfo> listBrand(@RequestParam(value="pageNum",defaultValue = "1") int pageNum, @RequestParam(value="pageSize",defaultValue = "20") int pageSize, Integer categoryId,String keyword,String brand){
+
+        if (categoryId!=null){
+            return iProductService.getProductByCategoryIdAndBrand(pageNum,pageSize,categoryId,brand);
         }
+        return iProductService.getProductByKeywordIdAndBrand(pageNum,pageSize,keyword,brand);
+        
     }
 
     @RequestMapping("get_sug.do")
@@ -109,74 +101,68 @@ public class ProductController {
 
     @RequestMapping("add_collect.do")
     @ResponseBody
-    public ServerResponse addCollect(HttpSession session,int productId){
-        if (session.getAttribute(Const.CURRENT_USER)==null){
+    public ServerResponse addCollect(HttpServletRequest httpServletRequest, int productId){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString= RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user= JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                return iProductService.addCollect(user.getId(),productId);
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return iProductService.addCollect(enterUser.getEnterUserId(),productId);
+            }
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
-        if (className.equals("com.mmall.pojo.User")){
-            User user=(User)session.getAttribute(Const.CURRENT_USER);
-            return iProductService.addCollect(user.getId(),productId);
-        }
-        if (className.equals("com.mmall.pojo.EnterUser")){
-            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
-            return iProductService.addCollect(enterUser.getEnterUserId(),productId);
-        }
-        return ServerResponse.createByErrorMessage("参数错误");
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
     }
 
     @RequestMapping("delete_collect.do")
     @ResponseBody
-    public ServerResponse deleteCollect(HttpSession session,int productId){
-        if (session.getAttribute(Const.CURRENT_USER)==null){
+    public ServerResponse deleteCollect(HttpServletRequest httpServletRequest,int productId){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString= RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user= JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                return iProductService.delectCollect(user.getId(),productId);
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return iProductService.delectCollect(enterUser.getEnterUserId(),productId);
+            }
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
-        if (className.equals("com.mmall.pojo.User")){
-            User user=(User)session.getAttribute(Const.CURRENT_USER);
-            return iProductService.delectCollect(user.getId(),productId);
-        }
-        if (className.equals("com.mmall.pojo.EnterUser")){
-            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
-            return iProductService.delectCollect(enterUser.getEnterUserId(),productId);
-        }
-        return ServerResponse.createByErrorMessage("参数错误");
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
     }
 
     @RequestMapping("get_collect.do")
     @ResponseBody
-    public ServerResponse getCollect(HttpSession session, @RequestParam(value = "pageNum",defaultValue = "1") int pageNum,@RequestParam(value = "pageSize",defaultValue = "10") int pageSize){
-        if (session.getAttribute(Const.CURRENT_USER)==null){
+    public ServerResponse getCollect(HttpServletRequest httpServletRequest, @RequestParam(value = "pageNum",defaultValue = "1") int pageNum,@RequestParam(value = "pageSize",defaultValue = "10") int pageSize){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString= RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user= JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                return iProductService.getCollect(user.getRole(),user.getId(),pageNum,pageSize);
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return iProductService.getCollect(0,enterUser.getEnterUserId(),pageNum,pageSize);
+            }
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
-        if (className.equals("com.mmall.pojo.User")){
-            User user=(User)session.getAttribute(Const.CURRENT_USER);
-            return iProductService.getCollect(user.getRole(),user.getId(),pageNum,pageSize);
-        }
-        if (className.equals("com.mmall.pojo.EnterUser")){
-            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
-            return iProductService.getCollect(0,enterUser.getEnterUserId(),pageNum,pageSize);
-        }
-        return ServerResponse.createByErrorMessage("参数错误");
-    }
-
-    @RequestMapping("query_collect.do")
-    @ResponseBody
-    public ServerResponse queryCollect(HttpSession session,int productId){
-//        if (session.getAttribute(Const.CURRENT_USER)==null){
-//            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
-//        }
-//        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
-//        if (className.equals("com.mmall.pojo.User")){
-//            User user=(User)session.getAttribute(Const.CURRENT_USER);
-//            return iProductService.queryCollect(user.getId(),productId);
-//        }
-//        if (className.equals("com.mmall.pojo.EnterUser")){
-//            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
-//            return iProductService.queryCollect(enterUser.getEnterUserId(),productId);
-//        }
-        return ServerResponse.createByErrorMessage("参数错误");
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
     }
 
     @RequestMapping("get_path.do")
@@ -191,5 +177,15 @@ public class ProductController {
         return iProductService.getAllProduct();
     }
 
+    @RequestMapping("select_null.do")
+    @ResponseBody
+    public ServerResponse selectNull(){
+        return iProductService.selectNull();
+    }
 
+    @RequestMapping("list_floor.do")
+    @ResponseBody
+    public ServerResponse listFloor(){
+        return iFloorService.listFloorSort();
+    }
 }

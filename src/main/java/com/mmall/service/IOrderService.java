@@ -5,10 +5,8 @@ import com.mmall.common.ServerResponse;
 import com.mmall.vo.OrderNumVo;
 import com.mmall.vo.OrderVo;
 
-import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 public interface IOrderService {
     ServerResponse pay(Long orderNo, Integer userId);
@@ -31,7 +29,7 @@ public interface IOrderService {
 
     ServerResponse<PageInfo> getCheckList(Integer userId,int pageNum, int pageSize);
 
-    ServerResponse fourCheckOrder(int userId,int checkOrderId,int lvId,int status);
+    ServerResponse fourCheckOrder(int userId,int checkOrderId,int lvId,int status,String checkOption);
 
     ServerResponse threeCheckOrder(int userId,int checkOrderId,int lvId,int status);
 
@@ -57,5 +55,17 @@ public interface IOrderService {
     ServerResponse<OrderNumVo> getOrderNum();
 
     void setPayStatus(String orderNo);
+
+    ServerResponse<PageInfo> getDrawback(Integer pageNum,Integer pageSize);
+
+    ServerResponse changePayment(Long orderNo, BigDecimal payment);
+
+    ServerResponse changeOrderPrice(Long orderNo,Integer productId,Integer productModelId, BigDecimal payment);
+
+    ServerResponse kjfp(Long orderNo, String companyName,String tax);
+
+    ServerResponse sendMail(String mail,Long orderNo);
+
+    ServerResponse fpList(Integer userId,Integer pageNum,Integer pageSize);
 
 }

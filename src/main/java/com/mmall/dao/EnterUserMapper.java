@@ -1,7 +1,6 @@
 package com.mmall.dao;
 
 import com.mmall.pojo.EnterUser;
-import com.mmall.pojo.User;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -14,6 +13,8 @@ public interface EnterUserMapper {
     int insertSelective(EnterUser record);
 
     EnterUser selectByPrimaryKey(Integer enterUserId);
+
+    EnterUser selectByenterCoding(String enterCoding);
 
     int updateByPrimaryKeySelective(EnterUser record);
 
@@ -30,5 +31,7 @@ public interface EnterUserMapper {
     int checkEmailByUserId(@Param("email") String email,@Param("userId") Integer userId);
 
     List<Integer> selectAllUserId();
+
+    List<EnterUser> selectAllEnterUser();
 
 }

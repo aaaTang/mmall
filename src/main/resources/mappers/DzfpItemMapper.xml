@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mmall.dao.DzfpItemMapper" >
+  <resultMap id="BaseResultMap" type="com.mmall.pojo.DzfpItem" >
+    <constructor >
+      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="fp_lsh" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="fp_flh" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="product_name" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="unit" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="xinghao" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="count" jdbcType="FLOAT" javaType="java.lang.Float" />
+      <arg column="price" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="total_price" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="sl" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="se" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, fp_lsh,fp_flh, product_name, unit, xinghao, count, price, total_price, sl, se
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from mmall_dzfp_item
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from mmall_dzfp_item
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mmall.pojo.DzfpItem" >
+    insert into mmall_dzfp_item (id, fp_lsh,fp_flh, product_name,
+      unit, xinghao, count, 
+      price, total_price, sl, 
+      se)
+    values (#{id,jdbcType=INTEGER}, #{fpLsh,jdbcType=VARCHAR}, #{fpFlh,jdbcType=VARCHAR},#{productName,jdbcType=VARCHAR},
+      #{unit,jdbcType=VARCHAR}, #{xinghao,jdbcType=VARCHAR}, #{count,jdbcType=FLOAT},
+      #{price,jdbcType=DECIMAL}, #{totalPrice,jdbcType=DECIMAL}, #{sl,jdbcType=DECIMAL}, 
+      #{se,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="com.mmall.pojo.DzfpItem" >
+    insert into mmall_dzfp_item
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="fpLsh != null" >
+        fp_lsh,
+      </if>
+      <if test="fpFlh != null" >
+        fp_flh,
+      </if>
+      <if test="productName != null" >
+        product_name,
+      </if>
+      <if test="unit != null" >
+        unit,
+      </if>
+      <if test="xinghao != null" >
+        xinghao,
+      </if>
+      <if test="count != null" >
+        count,
+      </if>
+      <if test="price != null" >
+        price,
+      </if>
+      <if test="totalPrice != null" >
+        total_price,
+      </if>
+      <if test="sl != null" >
+        sl,
+      </if>
+      <if test="se != null" >
+        se,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="fpLsh != null" >
+        #{fpLsh,jdbcType=VARCHAR},
+      </if>
+      <if test="fpFlh != null" >
+        #{fpFlh,jdbcType=VARCHAR},
+      </if>
+      <if test="productName != null" >
+        #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="unit != null" >
+        #{unit,jdbcType=VARCHAR},
+      </if>
+      <if test="xinghao != null" >
+        #{xinghao,jdbcType=VARCHAR},
+      </if>
+      <if test="count != null" >
+        #{count,jdbcType=FLOAT},
+      </if>
+      <if test="price != null" >
+        #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="totalPrice != null" >
+        #{totalPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="sl != null" >
+        #{sl,jdbcType=DECIMAL},
+      </if>
+      <if test="se != null" >
+        #{se,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mmall.pojo.DzfpItem" >
+    update mmall_dzfp_item
+    <set >
+      <if test="fpLsh != null" >
+        fp_lsh = #{fpLsh,jdbcType=VARCHAR},
+      </if>
+      <if test="fpFlh != null" >
+        fp_flh = #{fpFlh,jdbcType=VARCHAR},
+      </if>
+      <if test="productName != null" >
+        product_name = #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="unit != null" >
+        unit = #{unit,jdbcType=VARCHAR},
+      </if>
+      <if test="xinghao != null" >
+        xinghao = #{xinghao,jdbcType=VARCHAR},
+      </if>
+      <if test="count != null" >
+        count = #{count,jdbcType=FLOAT},
+      </if>
+      <if test="price != null" >
+        price = #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="totalPrice != null" >
+        total_price = #{totalPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="sl != null" >
+        sl = #{sl,jdbcType=DECIMAL},
+      </if>
+      <if test="se != null" >
+        se = #{se,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mmall.pojo.DzfpItem" >
+    update mmall_dzfp_item
+    set fp_lsh = #{fpLsh,jdbcType=VARCHAR},
+      fp_flh = #{fpFlh,jdbcType=VARCHAR},
+      product_name = #{productName,jdbcType=VARCHAR},
+      unit = #{unit,jdbcType=VARCHAR},
+      xinghao = #{xinghao,jdbcType=VARCHAR},
+      count = #{count,jdbcType=FLOAT},
+      price = #{price,jdbcType=DECIMAL},
+      total_price = #{totalPrice,jdbcType=DECIMAL},
+      sl = #{sl,jdbcType=DECIMAL},
+      se = #{se,jdbcType=DECIMAL}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectAllDzfpItem" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from mmall_dzfp_item
+  </select>
+
+  <select id="selectDzfpItemByLsh" resultMap="BaseResultMap" parameterType="string">
+    select
+    <include refid="Base_Column_List" />
+    from mmall_dzfp_item
+    where fp_lsh=#{lsh,jdbcType=VARCHAR}
+  </select>
+
+  <insert id="batchInsert" parameterType="list">
+    insert into mmall_dzfp_item (id,fp_lsh,fp_flh,product_name,unit,xinghao,count,price,total_price,sl,se)
+    values
+    <foreach collection="dzfpItemList" index="index" item="item" separator=",">
+      (
+      #{item.id},#{item.fpLsh},#{item.fpFlh},#{item.productName},#{item.unit},#{item.xinghao},#{item.count},#{item.price},
+      #{item.totalPrice},#{item.sl},#{item.se}
+      )
+    </foreach>
+  </insert>
+
+</mapper>

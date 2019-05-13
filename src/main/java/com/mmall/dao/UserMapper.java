@@ -14,6 +14,8 @@ public interface UserMapper {
 
     User selectByPrimaryKey(Integer id);
 
+    User selectByUserName(String userName);
+
     int updateByPrimaryKeySelective(User record);
 
     int updateByPrimaryKey(User record);
@@ -35,4 +37,6 @@ public interface UserMapper {
     int checkEmailByUserId(@Param("email") String email,@Param("userId") Integer userId);
 
     List<Integer> selectAllUserId();
+
+    List<User> selectAllUser();
 }

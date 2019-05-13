@@ -3,6 +3,7 @@ package com.mmall.service;
 import com.github.pagehelper.PageInfo;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.Product;
+import com.mmall.pojo.ProductModel;
 import com.mmall.vo.*;
 
 import java.math.BigDecimal;
@@ -14,17 +15,13 @@ public interface IProductService {
 
     ServerResponse<String> setSaleStatus(Integer productId,Integer status);
 
-    //ServerResponse<ProductDetailVo> manageProductDetail(Integer productId);
+    ServerResponse<PageInfo> getProductList(int pageNum, int pageSize);
 
-    ServerResponse<PageInfo> getProductList(Integer role,int pageNum, int pageSize);
+    ServerResponse<ProductDetailVo> getProductDetail(Integer productId);
 
-    //ServerResponse<PageInfo> searchProduct(String productName,Integer productId,int pageNum,int pageSize);
+    ServerResponse<PageInfo> getProductByKeywordCategory(String keyword,Integer categoryId,int pageNum,int pageSize,String orderBy);
 
-    ServerResponse<ProductDetailVo> getProductDetail(Integer role,Integer productId);
-
-    ServerResponse<PageInfo> getProductByKeywordCategory(Integer role,String keyword,Integer categoryId,int pageNum,int pageSize,String orderBy);
-
-    ServerResponse<PageInfo> getProductListTest(Integer role,int pageNum,int pageSize,int categoryId);
+    ServerResponse<PageInfoAndBrandVo> getProductListTest(int pageNum,int pageSize,int categoryId);
 
     ServerResponse<List<ProductSugVo>> getProductSugList(int categoryId);
 
@@ -36,9 +33,7 @@ public interface IProductService {
 
     ServerResponse<PageInfo> getCollect(Integer role,Integer userId,int pageNum,int pageSize);
 
-    ServerResponse queryCollect(Integer userId,Integer product);
-
-    ServerResponse getProductListByKeyword(Integer role,int pageNum,int pageSize,String keyword);
+    ServerResponse<PageInfoAndBrandVo> getProductListByKeyword(int pageNum,int pageSize,String keyword);
 
     ServerResponse<PageInfo> getProduct(Integer zb,Integer categoryId,int pageNum,int pageSize);
 
@@ -46,6 +41,18 @@ public interface IProductService {
 
     ServerResponse changeCategory(Integer productId,Integer categoryId);
 
-    ServerResponse<List<CategoryVo>> getAllProduct();
+    ServerResponse<List<testVo>> getAllProduct();
+
+    ServerResponse<PageInfo> getProductByCategoryIdAndBrand(int pageNum,int pageSize,int categoryId,String brand);
+
+    ServerResponse<PageInfo> getProductByKeywordIdAndBrand(int pageNum,int pageSize,String keyword,String brand);
+
+    ServerResponse selectNull();
+
+    ServerResponse getProductModel(Integer prdouctId,Integer pageNum,Integer pageSize);
+
+    ServerResponse saveProductModel(ProductModel productModel);
+
+    ServerResponse deleteProductModel(Integer productModelId);
 
 }

@@ -20,6 +20,8 @@ public class CheckOrder {
 
     private Integer curUser;
 
+    private String checkOption;
+
     private Integer curLv;
 
     private Integer status;

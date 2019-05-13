@@ -34,6 +34,8 @@ public class Category {
 
     private BigDecimal discount;
 
+    private Integer type;
+
     private Date createTime;
 
     private Date updateTime;

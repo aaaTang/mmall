@@ -315,7 +315,7 @@
     where enter_user_id = #{userId}
   </select>
 
-  <select id="selectMaxId" resultType="int">
+  <select id="selectMaxId" resultType="java.lang.Integer">
     select max(enter_shipping_id) from mmall_enter_shipping
   </select>
 

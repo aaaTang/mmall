@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mmall.dao.FloorCategoryMapper" >
+  <resultMap id="BaseResultMap" type="com.mmall.pojo.FloorCategory" >
+    <constructor >
+      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="floor_name" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="floor_image" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="first_categoryId" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="second_categoryId" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="third_categoryId" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="more_categoryId" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="sort_order" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, floor_name, floor_image, first_categoryId, second_categoryId, third_categoryId, 
+    more_categoryId, sort_order, create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from mmall_floor_category
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from mmall_floor_category
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mmall.pojo.FloorCategory" >
+    insert into mmall_floor_category (id, floor_name, floor_image, 
+      first_categoryId, second_categoryId, third_categoryId, 
+      more_categoryId, sort_order, create_time, 
+      update_time)
+    values (#{id,jdbcType=INTEGER}, #{floorName,jdbcType=VARCHAR}, #{floorImage,jdbcType=VARCHAR}, 
+      #{firstCategoryid,jdbcType=INTEGER}, #{secondCategoryid,jdbcType=INTEGER}, #{thirdCategoryid,jdbcType=INTEGER}, 
+      #{moreCategoryid,jdbcType=INTEGER}, #{sortOrder,jdbcType=INTEGER}, now(),
+      now())
+  </insert>
+  <insert id="insertSelective" parameterType="com.mmall.pojo.FloorCategory" >
+    insert into mmall_floor_category
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="floorName != null" >
+        floor_name,
+      </if>
+      <if test="floorImage != null" >
+        floor_image,
+      </if>
+      <if test="firstCategoryid != null" >
+        first_categoryId,
+      </if>
+      <if test="secondCategoryid != null" >
+        second_categoryId,
+      </if>
+      <if test="thirdCategoryid != null" >
+        third_categoryId,
+      </if>
+      <if test="moreCategoryid != null" >
+        more_categoryId,
+      </if>
+      <if test="sortOrder != null" >
+        sort_order,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="floorName != null" >
+        #{floorName,jdbcType=VARCHAR},
+      </if>
+      <if test="floorImage != null" >
+        #{floorImage,jdbcType=VARCHAR},
+      </if>
+      <if test="firstCategoryid != null" >
+        #{firstCategoryid,jdbcType=INTEGER},
+      </if>
+      <if test="secondCategoryid != null" >
+        #{secondCategoryid,jdbcType=INTEGER},
+      </if>
+      <if test="thirdCategoryid != null" >
+        #{thirdCategoryid,jdbcType=INTEGER},
+      </if>
+      <if test="moreCategoryid != null" >
+        #{moreCategoryid,jdbcType=INTEGER},
+      </if>
+      <if test="sortOrder != null" >
+        #{sortOrder,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        now(),
+      </if>
+      <if test="updateTime != null" >
+        now(),
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mmall.pojo.FloorCategory" >
+    update mmall_floor_category
+    <set >
+      <if test="floorName != null" >
+        floor_name = #{floorName,jdbcType=VARCHAR},
+      </if>
+      <if test="floorImage != null" >
+        floor_image = #{floorImage,jdbcType=VARCHAR},
+      </if>
+      <if test="firstCategoryid != null" >
+        first_categoryId = #{firstCategoryid,jdbcType=INTEGER},
+      </if>
+      <if test="secondCategoryid != null" >
+        second_categoryId = #{secondCategoryid,jdbcType=INTEGER},
+      </if>
+      <if test="thirdCategoryid != null" >
+        third_categoryId = #{thirdCategoryid,jdbcType=INTEGER},
+      </if>
+      <if test="moreCategoryid != null" >
+        more_categoryId = #{moreCategoryid,jdbcType=INTEGER},
+      </if>
+      <if test="sortOrder != null" >
+        sort_order = #{sortOrder,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      update_time = now(),
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mmall.pojo.FloorCategory" >
+    update mmall_floor_category
+    set floor_name = #{floorName,jdbcType=VARCHAR},
+      floor_image = #{floorImage,jdbcType=VARCHAR},
+      first_categoryId = #{firstCategoryid,jdbcType=INTEGER},
+      second_categoryId = #{secondCategoryid,jdbcType=INTEGER},
+      third_categoryId = #{thirdCategoryid,jdbcType=INTEGER},
+      more_categoryId = #{moreCategoryid,jdbcType=INTEGER},
+      sort_order = #{sortOrder,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = now()
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectFloor" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from mmall_floor_category
+  </select>
+
+  <select id="selectFloorSort" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from mmall_floor_category
+    order by sort_order desc
+  </select>
+
+</mapper>

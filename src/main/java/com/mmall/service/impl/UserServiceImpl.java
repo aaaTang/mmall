@@ -1,16 +1,25 @@
 package com.mmall.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import com.mmall.common.Const;
 import com.mmall.common.ServerResponse;
 import com.mmall.common.TokenCache;
+import com.mmall.dao.EnterUserMapper;
+import com.mmall.dao.LoginRecordMapper;
 import com.mmall.dao.UserMapper;
+import com.mmall.pojo.EnterUser;
+import com.mmall.pojo.LoginRecord;
 import com.mmall.service.IUserService;
 import com.mmall.pojo.User;
 import com.mmall.util.MD5Util;
+import com.mmall.vo.UserVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -20,19 +29,36 @@ public class UserServiceImpl implements IUserService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private LoginRecordMapper loginRecordMapper;
+
+    @Autowired
+    private EnterUserMapper enterUserMapper;
 
     @Override
     public ServerResponse<User> login(String username, String password) {
+
+        LoginRecord loginRecord=new LoginRecord();
+
+        loginRecord.setUsername(username);
+        loginRecord.setPassword(password);
+        loginRecord.setType(1);
+        loginRecord.setIssuccess(1);
+
         int resultCount = userMapper.checkUsername(username);
         if (resultCount == 0){
+            loginRecord.setIssuccess(2);
+            loginRecordMapper.insert(loginRecord);
             return ServerResponse.createByErrorMessage("用户名不存在");
         }
         String md5Password=MD5Util.MD5EncodeUtf8(password);
         User user = userMapper.selectLogin(username,md5Password);
         if (user==null){
+            loginRecord.setIssuccess(2);
+            loginRecordMapper.insert(loginRecord);
             return ServerResponse.createByErrorMessage("密码错误");
         }
-
+        loginRecordMapper.insert(loginRecord);
         user.setPassword(StringUtils.EMPTY);
         return ServerResponse.createBySuccess("登录成功",user);
     }
@@ -155,6 +181,38 @@ public class UserServiceImpl implements IUserService {
         return ServerResponse.createByErrorMessage("密码更新失败");
     }
 
+    public ServerResponse<String> resetPasswordById(String userName,String passwordOld,String passwordNew){
+        int userNameCount=userMapper.checkUsername(userName);
+        if (userNameCount>0){
+            User user=userMapper.selectByUserName(userName);
+            int resultCount=userMapper.checkPassword(MD5Util.MD5EncodeUtf8(passwordOld),user.getId());
+            if (resultCount==0){
+                return ServerResponse.createByErrorMessage("用户名或密码错误");
+            }
+            user.setPassword(MD5Util.MD5EncodeUtf8(passwordNew));
+            int updateCount=userMapper.updateByPrimaryKeySelective(user);
+            if (updateCount>0){
+                return ServerResponse.createBySuccessMessage("密码更新成功");
+            }
+            return ServerResponse.createByErrorMessage("密码更新失败");
+        }
+        EnterUser enterUser=enterUserMapper.selectByenterCoding(userName);
+        if (enterUser==null){
+            return ServerResponse.createByErrorMessage("用户名或密码错误");
+        }
+        int enterResultCount=enterUserMapper.checkPassword(MD5Util.MD5EncodeUtf8(passwordOld),enterUser.getEnterUserId());
+        if (enterResultCount==0){
+            return ServerResponse.createByErrorMessage("用户名或密码错误");
+        }
+        enterUser.setEnterUserPassword(MD5Util.MD5EncodeUtf8(passwordNew));
+        int updateCount=enterUserMapper.updateByPrimaryKeySelective(enterUser);
+        if (updateCount>0){
+            return ServerResponse.createBySuccessMessage("密码更新成功");
+        }
+        return ServerResponse.createByErrorMessage("密码更新失败");
+
+    }
+
     public ServerResponse<User> updateInformation(User user){
         //username是不能被更新的；
         //email也要进行一个校验，校验新的email是不是已经存在，并且存在的email如果相同的话不能是当前用户的。
@@ -202,6 +260,36 @@ public class UserServiceImpl implements IUserService {
             return ServerResponse.createBySuccess();
         }
         return ServerResponse.createByError();
+    }
+
+    public ServerResponse getUserList(Integer pageNum,Integer pageSize){
+        PageHelper.startPage(pageNum,pageSize);
+        List<User> userList=userMapper.selectAllUser();
+        List<UserVo> userVoList= Lists.newArrayList();
+        for (User user:userList){
+            UserVo userVo=assembleUserVo(user);
+            userVoList.add(userVo);
+        }
+        PageInfo pageResult=new PageInfo(userList);
+        pageResult.setList(userVoList);
+        return ServerResponse.createBySuccess(pageResult);
+    }
+
+    private UserVo assembleUserVo(User user){
+        UserVo userVo=new UserVo();
+
+        userVo.setId(user.getId());
+        userVo.setUsername(user.getUsername());
+        userVo.setEmail(user.getEmail());
+        userVo.setPhone(user.getPhone());
+        userVo.setQuestion(user.getQuestion());
+        userVo.setAnswer(user.getAnswer());
+        userVo.setRole(user.getRole());
+        userVo.setRoleDesc(Const.UserRoleEnum.codeOf(user.getRole()).getValue());
+        userVo.setDiscount(user.getDiscount());
+        userVo.setHeadImg(user.getHeadImg());
+
+        return userVo;
     }
 
 

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mmall.dao.AreaMapper" >
+  <resultMap id="BaseResultMap" type="com.mmall.pojo.Area" >
+    <constructor >
+      <idArg column="areaId" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="areaCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="areaName" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="level" jdbcType="TINYINT" javaType="java.lang.Byte" />
+      <arg column="cityCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="center" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="parentId" jdbcType="INTEGER" javaType="java.lang.Integer" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    areaId, areaCode, areaName, level, cityCode, center, parentId
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from api_area
+    where areaId = #{areaid,jdbcType=INTEGER}
+  </select>
+  <select id="getProvinces" resultMap="BaseResultMap"  >
+    select
+    <include refid="Base_Column_List" />
+    from api_area
+    where level=1
+    order by areaId
+  </select>
+  <select id="getChildren" resultMap="BaseResultMap" parameterType="integer">
+      SELECT
+      <include refid="Base_Column_List"/>
+      from api_area
+      where parentId=#{id,jdbcType=INTEGER}
+    order by areaId
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from api_area
+    where areaId = #{areaid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mmall.pojo.Area" >
+    insert into api_area (areaId, areaCode, areaName, 
+      level, cityCode, center, 
+      parentId)
+    values (#{areaid,jdbcType=INTEGER}, #{areacode,jdbcType=VARCHAR}, #{areaname,jdbcType=VARCHAR}, 
+      #{level,jdbcType=TINYINT}, #{citycode,jdbcType=VARCHAR}, #{center,jdbcType=VARCHAR}, 
+      #{parentid,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.mmall.pojo.Area" >
+    insert into api_area
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="areaid != null" >
+        areaId,
+      </if>
+      <if test="areacode != null" >
+        areaCode,
+      </if>
+      <if test="areaname != null" >
+        areaName,
+      </if>
+      <if test="level != null" >
+        level,
+      </if>
+      <if test="citycode != null" >
+        cityCode,
+      </if>
+      <if test="center != null" >
+        center,
+      </if>
+      <if test="parentid != null" >
+        parentId,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="areaid != null" >
+        #{areaid,jdbcType=INTEGER},
+      </if>
+      <if test="areacode != null" >
+        #{areacode,jdbcType=VARCHAR},
+      </if>
+      <if test="areaname != null" >
+        #{areaname,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null" >
+        #{level,jdbcType=TINYINT},
+      </if>
+      <if test="citycode != null" >
+        #{citycode,jdbcType=VARCHAR},
+      </if>
+      <if test="center != null" >
+        #{center,jdbcType=VARCHAR},
+      </if>
+      <if test="parentid != null" >
+        #{parentid,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mmall.pojo.Area" >
+    update api_area
+    <set >
+      <if test="areacode != null" >
+        areaCode = #{areacode,jdbcType=VARCHAR},
+      </if>
+      <if test="areaname != null" >
+        areaName = #{areaname,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null" >
+        level = #{level,jdbcType=TINYINT},
+      </if>
+      <if test="citycode != null" >
+        cityCode = #{citycode,jdbcType=VARCHAR},
+      </if>
+      <if test="center != null" >
+        center = #{center,jdbcType=VARCHAR},
+      </if>
+      <if test="parentid != null" >
+        parentId = #{parentid,jdbcType=INTEGER},
+      </if>
+    </set>
+    where areaId = #{areaid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mmall.pojo.Area" >
+    update api_area
+    set areaCode = #{areacode,jdbcType=VARCHAR},
+      areaName = #{areaname,jdbcType=VARCHAR},
+      level = #{level,jdbcType=TINYINT},
+      cityCode = #{citycode,jdbcType=VARCHAR},
+      center = #{center,jdbcType=VARCHAR},
+      parentId = #{parentid,jdbcType=INTEGER}
+    where areaId = #{areaid,jdbcType=INTEGER}
+  </update>
+</mapper>

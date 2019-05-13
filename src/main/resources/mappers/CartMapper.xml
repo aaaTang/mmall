@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.mmall.dao.CartMapper" >
+  <!-- 开启本mapper的namespace下的二级缓存
+   type：制定cache接口的实现类的类型，mybatis默认使用PerpetualCache
+   要和ehcache整合，需要配置type为ehcache实现cache接口的类型
+   <cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+   -->
+  <cache type="org.mybatis.caches.ehcache.LoggingEhcache" />
   <resultMap id="BaseResultMap" type="com.mmall.pojo.Cart" >
     <constructor >
       <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
@@ -187,7 +193,7 @@
     </if>
   </update>
 
-  <select id="selectCartProductCount" parameterType="int" resultType="int">
+  <select id="selectCartProductCount" parameterType="int" resultType="java.lang.Integer">
     select IFNULL(sum(quantity),0) as count from mmall_cart where user_id=#{userId}
   </select>
 

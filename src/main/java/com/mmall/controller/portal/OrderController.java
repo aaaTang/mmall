@@ -7,8 +7,13 @@ import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.EnterUser;
 import com.mmall.pojo.User;
+import com.mmall.service.IDzfpService;
 import com.mmall.service.IOrderService;
+import com.mmall.util.CookUtil;
+import com.mmall.util.JsonUtil;
+import com.mmall.util.RedisPoolUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,273 +32,328 @@ import java.util.Map;
 public class OrderController {
 
     @Autowired
+    private IDzfpService iDzfpService;
+
+    @Autowired
     private IOrderService iOrderService;
 
     @RequestMapping("create.do")
     @ResponseBody
-    public ServerResponse create(HttpSession session, Integer shippingId){
+    public ServerResponse create(HttpServletRequest httpServletRequest, Integer shippingId){
 
-        if (session.getAttribute(Const.CURRENT_USER)==null){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString=RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user=JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                return iOrderService.createOrder(user.getId(),shippingId);
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return iOrderService.createOrder(enterUser.getEnterUserId(),shippingId);
+            }
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
-        if (className.equals("com.mmall.pojo.User")){
-            User user=(User)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.createOrder(user.getId(),shippingId);
-        }
-        if (className.equals("com.mmall.pojo.EnterUser")){
-            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.createOrder(enterUser.getEnterUserId(),shippingId);
-        }
-        return ServerResponse.createByErrorMessage("参数错误");
-
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
     }
 
     @RequestMapping("quick_create.do")
     @ResponseBody
-    public ServerResponse create(HttpSession session, Integer productId,@RequestParam(value = "modelId",defaultValue = "0")Integer modelId,Integer count,Integer shippingId,Integer paymentType){
-
-        if (session.getAttribute(Const.CURRENT_USER)==null){
+    public ServerResponse create(HttpServletRequest httpServletRequest, Integer productId,@RequestParam(value = "modelId",defaultValue = "0")Integer modelId,Integer count,Integer shippingId,Integer paymentType){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString=RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user=JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                return iOrderService.quickCreateOrder(user.getId(),productId,modelId,count,shippingId);
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return iOrderService.quickCreateOrder(enterUser.getEnterUserId(),productId,modelId,count,shippingId);
+            }
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
-        if (className.equals("com.mmall.pojo.User")){
-            User user=(User)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.quickCreateOrder(user.getId(),productId,modelId,count,shippingId);
-        }
-        if (className.equals("com.mmall.pojo.EnterUser")){
-            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.quickCreateOrder(enterUser.getEnterUserId(),productId,modelId,count,shippingId);
-        }
-        return ServerResponse.createByErrorMessage("参数错误");
-
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
     }
 
     @RequestMapping("cancel.do")
     @ResponseBody
-    public ServerResponse cancel(HttpSession session, Long orderNo){
-
-        if (session.getAttribute(Const.CURRENT_USER)==null){
+    public ServerResponse cancel(HttpServletRequest httpServletRequest, Long orderNo){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString=RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user=JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                return iOrderService.cancel(user.getId(),orderNo);
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return iOrderService.cancel(enterUser.getEnterUserId(),orderNo);
+            }
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
-        if (className.equals("com.mmall.pojo.User")){
-            User user=(User)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.cancel(user.getId(),orderNo);
-        }
-        if (className.equals("com.mmall.pojo.EnterUser")){
-            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.cancel(enterUser.getEnterUserId(),orderNo);
-        }
-        return ServerResponse.createByErrorMessage("参数错误");
-
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
     }
 
     @RequestMapping("delete.do")
     @ResponseBody
-    public ServerResponse delete(HttpSession session, Long orderNo){
-
-        if (session.getAttribute(Const.CURRENT_USER)==null){
+    public ServerResponse delete(HttpServletRequest httpServletRequest, Long orderNo){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString=RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user=JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                return iOrderService.delete(user.getId(),orderNo);
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return iOrderService.delete(enterUser.getEnterUserId(),orderNo);
+            }
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
-        if (className.equals("com.mmall.pojo.User")){
-            User user=(User)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.delete(user.getId(),orderNo);
-        }
-        if (className.equals("com.mmall.pojo.EnterUser")){
-            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.delete(enterUser.getEnterUserId(),orderNo);
-        }
-        return ServerResponse.createByErrorMessage("参数错误");
-
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
     }
 
     @RequestMapping("get_order_cart_product.do")
     @ResponseBody
-    public ServerResponse getOrderCartProduct(HttpSession session){
-
-        if (session.getAttribute(Const.CURRENT_USER)==null){
+    public ServerResponse getOrderCartProduct(HttpServletRequest httpServletRequest){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString=RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user=JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                return iOrderService.getOrderCartProduct(user.getId());
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return iOrderService.getOrderCartProduct(enterUser.getEnterUserId());
+            }
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
-        if (className.equals("com.mmall.pojo.User")){
-            User user=(User)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.getOrderCartProduct(user.getId());
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        if (className.equals("com.mmall.pojo.EnterUser")){
-            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.getOrderCartProduct(enterUser.getEnterUserId());
-        }
-        return ServerResponse.createByErrorMessage("参数错误");
-
-    }
 
     @RequestMapping("detail.do")
     @ResponseBody
-    public ServerResponse detail(HttpSession session,Long orderNo){
-
-        if (session.getAttribute(Const.CURRENT_USER)==null){
+    public ServerResponse detail(HttpServletRequest httpServletRequest,Long orderNo){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString=RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user=JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                return iOrderService.getOrderDetail(user.getId(),orderNo);
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return iOrderService.getOrderDetail(enterUser.getEnterUserId(),orderNo);
+            }
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
-        if (className.equals("com.mmall.pojo.User")){
-            User user=(User)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.getOrderDetail(user.getId(),orderNo);
-        }
-        if (className.equals("com.mmall.pojo.EnterUser")){
-            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.getOrderDetail(enterUser.getEnterUserId(),orderNo);
-        }
-        return ServerResponse.createByErrorMessage("参数错误");
-
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
     }
 
     @RequestMapping("list.do")
     @ResponseBody
-    public ServerResponse list(HttpSession session, @RequestParam(value = "pageNum",defaultValue = "1") int pageNum, @RequestParam(value = "pageSize",defaultValue = "10") int pageSize){
-
-        if (session.getAttribute(Const.CURRENT_USER)==null){
+    public ServerResponse list(HttpServletRequest httpServletRequest, @RequestParam(value = "pageNum",defaultValue = "1") int pageNum, @RequestParam(value = "pageSize",defaultValue = "10") int pageSize){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString=RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user=JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                return iOrderService.getOrderList(user.getId(),pageNum,pageSize);
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return iOrderService.getOrderList(enterUser.getEnterUserId(),pageNum,pageSize);
+            }
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
-        if (className.equals("com.mmall.pojo.User")){
-            User user=(User)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.getOrderList(user.getId(),pageNum,pageSize);
-        }
-        if (className.equals("com.mmall.pojo.EnterUser")){
-            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.getOrderList(enterUser.getEnterUserId(),pageNum,pageSize);
-        }
-        return ServerResponse.createByErrorMessage("参数错误");
-
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
     }
 
     @RequestMapping("submit.do")
     @ResponseBody
-    public ServerResponse submit(HttpSession session, Long orderNo){
-
-        if (session.getAttribute(Const.CURRENT_USER)==null){
+    public ServerResponse submit(HttpServletRequest httpServletRequest, Long orderNo){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString=RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user=JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                return iOrderService.submit(user.getId(), orderNo);
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return iOrderService.submit(enterUser.getEnterUserId(), orderNo);
+            }
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
-        if (className.equals("com.mmall.pojo.User")){
-            User user=(User)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.submit(user.getId(), orderNo);
-        }
-        if (className.equals("com.mmall.pojo.EnterUser")){
-            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.submit(enterUser.getEnterUserId(), orderNo);
-        }
-        return ServerResponse.createByErrorMessage("参数错误");
-
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
     }
 
     @RequestMapping("get_check.do")
     @ResponseBody
-    public ServerResponse getCheckList(HttpSession session,@RequestParam(value = "pageNum",defaultValue = "1") int pageNum, @RequestParam(value = "pageSize",defaultValue = "10") int pageSize){
-
-        if (session.getAttribute(Const.CURRENT_USER)==null){
+    public ServerResponse getCheckList(HttpServletRequest httpServletRequest,@RequestParam(value = "pageNum",defaultValue = "1") int pageNum, @RequestParam(value = "pageSize",defaultValue = "10") int pageSize){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString=RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user=JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                return iOrderService.getCheckList(user.getId(),pageNum,pageSize);
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return iOrderService.getCheckList(enterUser.getEnterUserId(),pageNum,pageSize);
+            }
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
-        if (className.equals("com.mmall.pojo.User")){
-            User user=(User)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.getCheckList(user.getId(),pageNum,pageSize);
-        }
-        if (className.equals("com.mmall.pojo.EnterUser")){
-            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.getCheckList(enterUser.getEnterUserId(),pageNum,pageSize);
-        }
-        return ServerResponse.createByErrorMessage("参数错误");
-
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
     }
 
     @RequestMapping("check.do")
     @ResponseBody
-    public ServerResponse fourCheckOrder(HttpSession session,int checkOrderId,int lvId,int status ){
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
-        if (user==null){
+    public ServerResponse fourCheckOrder(HttpServletRequest httpServletRequest,int checkOrderId,int lvId,int status,String checkOption ){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString=RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user=JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                if (user.getRole()==1||user.getRole()==0){
+                    log.info(String.valueOf(user.getRole()));
+                    return ServerResponse.createByErrorMessage("该用户没有审核权限");
+                }
+                if(status==Const.CheckStatusEnum.FAIL_CHECK.getCode() & org.apache.commons.lang3.StringUtils.isEmpty(checkOption)){
+                    return ServerResponse.createByErrorMessage("审核不通过请填写审核意见");
+                }
+                return iOrderService.fourCheckOrder(user.getId(),checkOrderId,lvId,status,checkOption);
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return ServerResponse.createByErrorMessage("您没有审核权限功能；");
+            }
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        if (user.getRole()==1||user.getRole()==0){
-            log.info(String.valueOf(user.getRole()));
-            return ServerResponse.createByErrorMessage("该用户没有审核权限");
-        }
-        return iOrderService.fourCheckOrder(user.getId(),checkOrderId,lvId,status);
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
     }
 
     @RequestMapping("three_check.do")
     @ResponseBody
-    public ServerResponse threeCheckOrder(HttpSession session,int checkOrderId,int lvId,int status ){
-        User user=(User)session.getAttribute(Const.CURRENT_USER);
-        if (user==null){
+    public ServerResponse threeCheckOrder(HttpServletRequest httpServletRequest,int checkOrderId,int lvId,int status ){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString=RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user=JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                if (user.getRole()==1||user.getRole()==0){
+                    return ServerResponse.createByErrorMessage("该用户没有审核权限");
+                }
+                return iOrderService.threeCheckOrder(user.getId(),checkOrderId,lvId,status);
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return ServerResponse.createByErrorMessage("您没有审核权限功能；");
+            }
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        if (user.getRole()==1||user.getRole()==0){
-            return ServerResponse.createByErrorMessage("该用户没有审核权限");
-        }
-        return iOrderService.threeCheckOrder(user.getId(),checkOrderId,lvId,status);
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
     }
 
     @RequestMapping("confirm.do")
     @ResponseBody
-    public ServerResponse confirmOrder(HttpSession session,Long orderNo){
-
-        if (session.getAttribute(Const.CURRENT_USER)==null){
+    public ServerResponse confirmOrder(HttpServletRequest httpServletRequest,Long orderNo){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString=RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user=JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                return iOrderService.confirmOrder(user.getId(),orderNo);
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return iOrderService.confirmOrder(enterUser.getEnterUserId(),orderNo);
+            }
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
-        if (className.equals("com.mmall.pojo.User")){
-            User user=(User)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.confirmOrder(user.getId(),orderNo);
-        }
-        if (className.equals("com.mmall.pojo.EnterUser")){
-            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.confirmOrder(enterUser.getEnterUserId(),orderNo);
-        }
-        return ServerResponse.createByErrorMessage("参数错误");
-
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
     }
 
     @RequestMapping("pay.do")
     @ResponseBody
-    public ServerResponse pay(HttpSession session, Long orderNo){
-
-        if (session.getAttribute(Const.CURRENT_USER)==null){
+    public ServerResponse pay(HttpServletRequest httpServletRequest, Long orderNo){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString=RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user=JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                return iOrderService.pay(orderNo,user.getId());
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return iOrderService.pay(orderNo,enterUser.getEnterUserId());
+            }
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
-        if (className.equals("com.mmall.pojo.User")){
-            User user=(User)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.pay(orderNo,user.getId());
-        }
-        if (className.equals("com.mmall.pojo.EnterUser")){
-            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.pay(orderNo,enterUser.getEnterUserId());
-        }
-        return ServerResponse.createByErrorMessage("参数错误");
-
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
     }
 
     @RequestMapping("set_pay.do")
     @ResponseBody
-    public ServerResponse setPay(HttpSession session, Long orderNo){
-
-        if (session.getAttribute(Const.CURRENT_USER)==null){
+    public ServerResponse setPay(HttpServletRequest httpServletRequest, Long orderNo){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString=RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user=JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                return iOrderService.setPay(orderNo,user.getId());
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return iOrderService.setPay(orderNo,enterUser.getEnterUserId());
+            }
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
-        if (className.equals("com.mmall.pojo.User")){
-            User user=(User)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.setPay(orderNo,user.getId());
-        }
-        if (className.equals("com.mmall.pojo.EnterUser")){
-            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.setPay(orderNo,enterUser.getEnterUserId());
-        }
-        return ServerResponse.createByErrorMessage("参数错误");
-
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
     }
 
 
@@ -302,50 +361,117 @@ public class OrderController {
 
     @RequestMapping("select_order.do")
     @ResponseBody
-    public ServerResponse selectOrder(HttpSession session ,
+    public ServerResponse selectOrder(HttpServletRequest httpServletRequest ,
                                       @RequestParam(value = "year",defaultValue = "-1") int year,
                                       @RequestParam(value = "month" ,defaultValue = "-1") int month,
                                       @RequestParam(value = "startTime",defaultValue = "-1") String startTime,
                                       @RequestParam(value = "endTime",defaultValue = "-1") String endTime){
-        if (session.getAttribute(Const.CURRENT_USER)==null){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString=RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user=JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                return iOrderService.selectOrder(user.getId(),year,month,startTime,endTime);
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return iOrderService.selectOrder(enterUser.getEnterUserId(),year,month,startTime,endTime);
+            }
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
-        if (className.equals("com.mmall.pojo.User")){
-            User user=(User)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.selectOrder(user.getId(),year,month,startTime,endTime);
-        }
-        if (className.equals("com.mmall.pojo.EnterUser")){
-            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.selectOrder(enterUser.getEnterUserId(),year,month,startTime,endTime);
-        }
-        return ServerResponse.createByErrorMessage("参数错误");
-    }
-
-    @RequestMapping("query.do")
-    @ResponseBody
-    public ServerResponse query(String orderNo){
-        return iOrderService.query(orderNo);
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
     }
 
     @RequestMapping("create_drawback.do")
     @ResponseBody
-    public ServerResponse createDrawback(HttpSession session, Long orderNo, int type, BigDecimal money, int reason, int refund_way, String description ){
-        if (session.getAttribute(Const.CURRENT_USER)==null){
+    public ServerResponse createDrawback(HttpServletRequest httpServletRequest, Long orderNo, int type, BigDecimal money, int reason, int refund_way, String description ){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString=RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user=JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                return iOrderService.drawback(user.getId(),orderNo,type,money,reason,refund_way,description);
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return iOrderService.drawback(enterUser.getEnterUserId(),orderNo,type,money,reason,refund_way,description);
+            }
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
         }
-        String className=session.getAttribute(Const.CURRENT_USER).getClass().getName();
-        if (className.equals("com.mmall.pojo.User")){
-            User user=(User)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.drawback(user.getId(),orderNo,type,money,reason,refund_way,description);
-        }
-        if (className.equals("com.mmall.pojo.EnterUser")){
-            EnterUser enterUser=(EnterUser)session.getAttribute(Const.CURRENT_USER);
-            return iOrderService.drawback(enterUser.getEnterUserId(),orderNo,type,money,reason,refund_way,description);
-        }
-        return ServerResponse.createByErrorMessage("参数错误");
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
     }
 
+    @RequestMapping("fpkj.do")
+    @ResponseBody
+    public ServerResponse fpkj(HttpServletRequest httpServletRequest, Long orderNo, String companyName,@RequestParam(value = "tax" ,defaultValue = "") String tax ){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString=RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user=JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                return iOrderService.kjfp(orderNo,companyName,tax);
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return iOrderService.kjfp(orderNo,companyName,tax);
+            }
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+        }
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+    }
+
+    @RequestMapping("fp_sendmail.do")
+    @ResponseBody
+    public ServerResponse sendMail(HttpServletRequest httpServletRequest, String mail,Long orderNo){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString=RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user=JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                return iOrderService.sendMail(mail,orderNo);
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return iOrderService.sendMail(mail,orderNo);
+            }
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+        }
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+    }
+
+    @RequestMapping("fp_list.do")
+    @ResponseBody
+    public ServerResponse fpList(HttpServletRequest httpServletRequest,@RequestParam(value = "pageNum",defaultValue = "1") int pageNum, @RequestParam(value = "pageSize",defaultValue = "10") int pageSize){
+        String token= CookUtil.readLoginToken(httpServletRequest);
+        if (StringUtils.isNotBlank(token)){
+            String userString=RedisPoolUtil.get(token);
+            if (userString==null){
+                return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+            }
+            User user=JsonUtil.string2Obj(userString,User.class);
+            EnterUser enterUser=JsonUtil.string2Obj(userString,EnterUser.class);
+            if (user.getId()!=null){
+                return iOrderService.fpList(user.getId(),pageNum,pageSize);
+            }
+            if (enterUser.getEnterUserId()!=null){
+                return iOrderService.fpList(enterUser.getEnterUserId(),pageNum,pageSize);
+            }
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+        }
+        return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),ResponseCode.NEED_LOGIN.getDesc());
+    }
 
     @RequestMapping("alipayNotifyNotice.do")
     @ResponseBody
@@ -382,10 +508,8 @@ public class OrderController {
         if(signVerified) {//验证成功
             //商户订单号
             String out_trade_no = new String(request.getParameter("out_trade_no").getBytes("ISO-8859-1"),"UTF-8");
-
             //支付宝交易号
             String trade_no = new String(request.getParameter("trade_no").getBytes("ISO-8859-1"),"UTF-8");
-
             //交易状态
             String trade_status = new String(request.getParameter("trade_status").getBytes("ISO-8859-1"),"UTF-8");
 
@@ -396,29 +520,24 @@ public class OrderController {
                 //判断该笔订单是否在商户网站中已经做过处理
                 //如果没有做过处理，根据订单号（out_trade_no）在商户网站的订单系统中查到该笔订单的详细，并执行商户的业务程序
                 //如果有做过处理，不执行商户的业务程序
-
                 //注意： 尚自习的订单没有退款功能, 这个条件判断是进不来的, 所以此处不必写代码
                 //退款日期超过可退款期限后（如三个月可退款），支付宝系统发送该交易状态通知
             }else if (trade_status.equals("TRADE_SUCCESS")){
                 //判断该笔订单是否在商户网站中已经做过处理
                 //如果没有做过处理，根据订单号（out_trade_no）在商户网站的订单系统中查到该笔订单的详细，并执行商户的业务程序
                 //如果有做过处理，不执行商户的业务程序
-
                 //注意：
                 //付款完成后，支付宝系统发送该交易状态通知
-
-                // 修改叮当状态，改为 支付成功，已付款; 同时新增支付流水
-
-
+                // 修改叮当状态，改为 支付成功，已付款; 同时新增支付流
             }
             iOrderService.setPayStatus(out_trade_no);
+
             System.out.println("支付成功...");
             log.info("支付成功...");
 
         }else {//验证失败
             log.info("支付, 验签失败...");
         }
-
         return "success";
     }
 

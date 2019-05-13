@@ -11,6 +11,7 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.mmall.common.AlipayConfig;
 import com.mmall.common.Const;
+import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.dao.*;
 import com.mmall.pojo.*;
@@ -19,15 +20,30 @@ import com.mmall.service.IOrderService;
 import com.mmall.util.BigDecimalUtil;
 import com.mmall.util.DataTimeUtil;
 import com.mmall.util.PropertiesUtil;
+import com.mmall.util.SendMailUtil;
+import com.mmall.util.dzfp.FileUtil;
+import com.mmall.util.dzfp.Gzip;
+import com.mmall.util.dzfp.HttpRequestUtils;
 import com.mmall.vo.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sun.misc.BASE64Decoder;
 
+import javax.mail.internet.MimeUtility;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.*;
+
+import static com.mmall.util.Base64Code.Base64Decode;
 
 @Service("iOrderService")
 @Slf4j
@@ -72,16 +88,8 @@ public class OrderServiceImpl implements IOrderService {
     @Autowired
     private DrawbackMapper drawbackMapper;
 
-    public String Base64Decode(String encodeStr) {
-        BASE64Decoder decoder = new BASE64Decoder();
-        try{
-            byte[] b = decoder.decodeBuffer(encodeStr);
-            String str = new String(b,"utf-8");
-            return str;
-        }catch (Exception e){
-            return null;
-        }
-    }
+    @Autowired
+    private InvoiceMapper invoiceMapper;
 
     public ServerResponse createOrder(Integer userId,Integer shippingId){
         //从购物车中获取数据
@@ -128,8 +136,8 @@ public class OrderServiceImpl implements IOrderService {
         //生成消息提醒客户付款；
         String userName="系统管理员";
         String content="感谢您的购物，您的订单已经生成，订单号："+order.getOrderNo()+",订单金额："+order.getPayment()+",收货人："
-                +orderVo.getReceiverName()+",送货地址："+address+"。目前等待您的付款，付款后您可以进入会员中心处理订单，将订单状态置为“已付款”，或者通知我们您已付款，我们将在收到款项之后立即安排发货。";
-        String title="您的订单："+order.getOrderNo()+",处于待付款状态！";
+                +orderVo.getReceiverName()+",送货地址："+address+",请您确认订单信息，并选择付款方式。";
+        String title="您的订单："+order.getOrderNo()+"已生成，请选择付款方式！";
         String messageUrl="对应订单号的付款链接";
         iMessageService.add(userName,title,content,messageUrl,order.getUserId());
         return ServerResponse.createBySuccess(orderVo);
@@ -166,8 +174,8 @@ public class OrderServiceImpl implements IOrderService {
         //生成消息提醒客户付款；
         String userName="系统管理员";
         String content="感谢您的购物，您的订单已经生成，订单号："+order.getOrderNo()+",订单金额："+order.getPayment()+",收货人："
-                +orderVo.getReceiverName()+",送货地址："+address+"。目前等待您的付款，付款后您可以进入会员中心处理订单，将订单状态置为“已付款”，或者通知我们您已付款，我们将在收到款项之后立即安排发货。";
-        String title="您的订单："+order.getOrderNo()+",处于待付款状态！";
+                +orderVo.getReceiverName()+",送货地址："+address+",请您确认订单信息，并选择付款方式。";
+        String title="您的订单："+order.getOrderNo()+"已生成，请选择付款方式！";
         String messageUrl="对应订单号的付款链接";
         iMessageService.add(userName,title,content,messageUrl,order.getUserId());
         return ServerResponse.createBySuccess(orderVo);
@@ -180,6 +188,17 @@ public class OrderServiceImpl implements IOrderService {
         orderVo.setOrderNo(order.getOrderNo());
         orderVo.setPayment(order.getPayment());
         orderVo.setPaymentType(order.getPaymentType());
+
+        if (order.getPaymentType()==Const.PaymentTypeEnum.OFFLINE_PAY.getCode()){
+            CheckOrder checkOrder=checkOrderMapper.selectByOrderNo(order.getOrderNo());
+            CheckDetailVo checkDetailVo=new CheckDetailVo();
+            checkDetailVo.setCurrentLv(checkOrder.getCurLv());
+            checkDetailVo.setCurrentName(userMapper.selectByPrimaryKey(checkOrder.getCurUser()).getUsername());
+            checkDetailVo.setCheckOption(checkOrder.getCheckOption());
+
+            orderVo.setCheckDetailVo(checkDetailVo);
+        }
+
         orderVo.setPaymentTypeDesc(Const.PaymentTypeEnum.codeOf(order.getPaymentType()).getValue());
         orderVo.setPostage(order.getPostage());
         orderVo.setCurUserId(0);
@@ -233,9 +252,10 @@ public class OrderServiceImpl implements IOrderService {
         orderItemVo.setProductId(orderItem.getProductId());
         orderItemVo.setProductName(orderItem.getProductName());
         orderItemVo.setProductImage(orderItem.getProductImage());
+        orderItemVo.setModelName(orderItem.getModelName());
+
         orderItemVo.setCurrentUnitPrice(orderItem.getCurrentUnitPrice());
 
-        orderItemVo.setModelName(orderItem.getModelName());
         orderItemVo.setModelPrice(orderItem.getModelPrice());
         orderItemVo.setModelUnit(orderItem.getModelUnit());
 
@@ -324,7 +344,7 @@ public class OrderServiceImpl implements IOrderService {
         return null;
     }
 
-    private long generateOrderNo(){
+    public long generateOrderNo(){
         long currentTime = System.currentTimeMillis();
         return currentTime+new Random().nextInt(100);
     }
@@ -340,7 +360,7 @@ public class OrderServiceImpl implements IOrderService {
 
     private ServerResponse getQuickOrderItem(Integer userId,Integer productId,Integer modelId,Integer count){
         OrderItem orderItem=new OrderItem();
-        User user=userMapper.selectByPrimaryKey(userId);
+
         Product product = productMapper.selectByPrimaryKey(productId);
         if (Const.ProductStatusEnum.ON_SALE.getCode()!=product.getStatus()){
             return ServerResponse.createByErrorMessage("产品"+Base64Decode(product.getName())+"不是在线售卖状态");
@@ -351,6 +371,8 @@ public class OrderServiceImpl implements IOrderService {
                 return ServerResponse.createByErrorMessage("产品"+Base64Decode(product.getName())+"库存不足");
             }
             orderItem.setModelStatus(0);
+            orderItem.setCurrentUnitPrice(product.getPrice());
+            orderItem.setTotalPrice(BigDecimalUtil.mul(orderItem.getCurrentUnitPrice().doubleValue(),count));
         }else {
             ProductModel productModel=productModelMapper.selectByPrimaryKey(modelId);
             if (count>productModel.getStock()){
@@ -358,42 +380,24 @@ public class OrderServiceImpl implements IOrderService {
             }
             orderItem.setModelStatus(1);
             orderItem.setModelName(productModel.getName());
+            orderItem.setCurrentUnitPrice(productModel.getPrice());
             orderItem.setModelPrice(productModel.getPrice());
             orderItem.setModelUnit(productModel.getUnit());
             orderItem.setTotalPrice(BigDecimalUtil.mul(productModel.getPrice().doubleValue(),count));
         }
-
         orderItem.setUserId(userId);
         orderItem.setProductId(product.getId());
         orderItem.setProductName(Base64Decode(product.getName()));
         orderItem.setProductImage(product.getSubImages().split(",")[0]);
 
-        if (user.getRole()!=0){
-            BigDecimal discount=getDiscount(product.getCategoryId());
-            discount= BigDecimalUtil.sub(1,discount.doubleValue());
-            BigDecimal price=BigDecimalUtil.mul(product.getPrice().doubleValue(),discount.doubleValue());
-            orderItem.setCurrentUnitPrice(price);
-
-        }else {
-            orderItem.setCurrentUnitPrice(product.getPrice());
-        }
-
         orderItem.setQuantity(count);
-        orderItem.setTotalPrice(BigDecimalUtil.mul(orderItem.getCurrentUnitPrice().doubleValue(),count));
 
         return ServerResponse.createBySuccess(orderItem);
     }
 
-    private BigDecimal getDiscount(Integer jd_code){
-        Category thirdCategory=categoryMapper.selectByJdCode(jd_code);
-        Category secondCategory=categoryMapper.selectByPrimaryKey(thirdCategory.getParentId());
-        Category firstCategory=categoryMapper.selectByPrimaryKey(secondCategory.getParentId());
-        return firstCategory.getDiscount();
-    }
-
     private ServerResponse getCartOrderItem(Integer userId,List<Cart> cartList){
         List<OrderItem> orderItemList=Lists.newArrayList();
-        User user=userMapper.selectByPrimaryKey(userId);
+
         if (CollectionUtils.isEmpty(cartList)){
             return ServerResponse.createByErrorMessage("购物车为空");
         }
@@ -411,15 +415,7 @@ public class OrderServiceImpl implements IOrderService {
                     return ServerResponse.createByErrorMessage("产品"+Base64Decode(product.getName())+"库存不足");
                 }
                 orderItem.setModelStatus(0);
-
-                if (user.getRole()!=0){
-                    BigDecimal discount=getDiscount(product.getCategoryId());
-                    discount= BigDecimalUtil.sub(1,discount.doubleValue());
-                    price=BigDecimalUtil.mul(product.getPrice().doubleValue(),discount.doubleValue());
-                }else {
-                    price=product.getPrice();
-                }
-
+                price=product.getPrice();
                 orderItem.setTotalPrice(BigDecimalUtil.mul(price.doubleValue(),cartItem.getQuantity()));
             }else {
                 ProductModel productModel=productModelMapper.selectByPrimaryKey(cartItem.getModelId());
@@ -501,13 +497,6 @@ public class OrderServiceImpl implements IOrderService {
         return ServerResponse.createByErrorMessage("没有找到该订单");
     }
 
-    public OrderVo getOrderVO(Integer userId,Long orderNo){
-        Order order = orderMapper.selectByUserIdAndOrderNo(userId, orderNo);
-        List<OrderItem> orderItemList = orderItemMapper.getByOrderNoUserId(orderNo,userId);
-        OrderVo orderVo = assembleOrderVo(order,orderItemList);
-        return orderVo;
-    }
-
     public ServerResponse<PageInfo> getOrderList(Integer userId,int pageNum,int pageSize){
 
         PageHelper.startPage(pageNum,pageSize);
@@ -554,11 +543,6 @@ public class OrderServiceImpl implements IOrderService {
             checkOrderList=checkOrderMapper.selectCheckOrderList(userId);
         }
 
-//        if (order !=null){
-//            List<OrderItem> orderItemList = orderItemMapper.getByOrderNoUserId(orderNo,userId);
-//            OrderVo orderVo = assembleOrderVo(order,orderItemList);
-//            return ServerResponse.createBySuccess(orderVo);
-//        }
         PageHelper.startPage(pageNum,pageSize);
         List<CheckOrderVo> checkOrderVoList=assembleCheckOrderVo(checkOrderList);
         PageInfo pageResult=new PageInfo(checkOrderVoList);
@@ -600,15 +584,23 @@ public class OrderServiceImpl implements IOrderService {
         return checkOrderVoList;
     }
 
-    public ServerResponse fourCheckOrder(int userId,int checkOrderId,int lvId,int status){
+    public ServerResponse fourCheckOrder(int userId,int checkOrderId,int lvId,int status,String checkOption){
         CheckOrder checkOrder=checkOrderMapper.selectByPrimaryKey(checkOrderId);
         Order order=orderMapper.selectByOrderNo(checkOrder.getOrderNo());
         if (checkOrder!=null){
             if (status==1){
                 checkOrder.setStatus(status);
+                checkOrder.setCheckOption(checkOption);
                 checkOrderMapper.updateByPrimaryKey(checkOrder);
                 order.setStatus(Const.OrderStatusEnum.FAILCHECK.getCode());
                 orderMapper.updateByPrimaryKey(order);
+
+                String userName="系统管理员";
+                String content="感谢您的购物，您的订单号："+order.getOrderNo()+",订单金额："+order.getPayment()+"对应的订单由"+String.valueOf(checkOrder.getCurLv())+"级审核员："+userMapper.selectByPrimaryKey(checkOrder.getCurUser()).getUsername()+"审核不通过，审核意见为："+checkOption+"，请您重新修改订单或者重新下单。";
+                String title="您的订单："+order.getOrderNo()+"审核不通过";
+                String messageUrl="http://www.99sbl.com/#/orderDetail/"+order.getOrderNo();
+                iMessageService.add(userName,title,content,messageUrl,order.getUserId());
+
                 return ServerResponse.createBySuccess("点击成功");
             }
             if (status==2){
@@ -745,7 +737,7 @@ public class OrderServiceImpl implements IOrderService {
         if (order == null){
             return ServerResponse.createByErrorMessage("用户没有该订单");
         }
-        if (order.getStatus()==Const.OrderStatusEnum.CANCELED.getCode()||order.getStatus()==Const.OrderStatusEnum.UNSUBMIT.getCode()) {
+        if (order.getStatus()==Const.OrderStatusEnum.CANCELED.getCode()||order.getStatus()==Const.OrderStatusEnum.UNSUBMIT.getCode()||order.getStatus()==Const.OrderStatusEnum.DISDEAL.getCode()) {
             order.setStatus(Const.OrderStatusEnum.DELETE.getCode());
             orderMapper.updateByPrimaryKey(order);
             return ServerResponse.createBySuccess("删除成功");
@@ -953,13 +945,36 @@ public class OrderServiceImpl implements IOrderService {
     public ServerResponse<String> manageSendGoods(Long orderNo,Integer type,String num){
         Order order=orderMapper.selectByOrderNo(orderNo);
         if (order!=null){
-            if (order.getStatus()==Const.OrderStatusEnum.UNDELIVERY.getCode()){
+            if (order.getStatus()==Const.OrderStatusEnum.UNDELIVERY.getCode()||order.getStatus()==Const.OrderStatusEnum.SUCCESSCHECK.getCode()){
                 order.setStatus(Const.OrderStatusEnum.EXPRESSON.getCode());
                 order.setExpressType(type);
                 order.setExpressNub(num);
                 order.setSendTime(new Date());
-                orderMapper.updateByPrimaryKeySelective(order);
-                return ServerResponse.createBySuccess("发货成功");
+                int rowCount=orderMapper.updateByPrimaryKeySelective(order);
+                if (rowCount>0){
+                    String receiverName=null;
+                    String address=null;
+
+                    Shipping shipping=shippingMapper.selectByPrimaryKey(order.getShippingId());
+                    if (shipping!=null){
+                        receiverName=shipping.getReceiverName();
+                        address=shipping.getReceiverProvince()+shipping.getReceiverCity()+shipping.getReceiverDistrict()+shipping.getReceiverAddress();
+                    }else{
+                        EnterShipping enterShipping=enterShippingMapper.selectByPrimaryKey(order.getShippingId());
+                        receiverName=enterShipping.getEnterReceiverName();
+                        address=enterShipping.getEnterReceiverProvince()+enterShipping.getEnterReceiverCity()+enterShipping.getEnterReceiverDistrict()+enterShipping.getEnterReceiverAddress();
+                    }
+
+                    String userName="系统管理员";
+                    String content="感谢您的购物，您的订单已经发货，订单号："+order.getOrderNo()+",订单金额："+order.getPayment()+",收货人："
+                            +receiverName+",送货地址："+address+"。";
+                    String title="您的订单："+order.getOrderNo()+"已发货，您可以在订单详情中查看物流信息";
+                    String messageUrl="http://www.99sbl.com/#/orderDetail/"+orderNo;
+                    iMessageService.add(userName,title,content,messageUrl,order.getUserId());
+
+                    return ServerResponse.createBySuccess("发货成功");
+                }
+                return ServerResponse.createByErrorMessage("发货失败，请联系技术人员！");
             }else if (order.getStatus()==Const.OrderStatusEnum.FAILCHECK.getCode()){
                 return ServerResponse.createByErrorMessage("订单审核未通过");
             }
@@ -1056,6 +1071,466 @@ public class OrderServiceImpl implements IOrderService {
         orderNumVo.setDrawback(drawback);
 
         return ServerResponse.createBySuccess(orderNumVo);
+    }
+
+    public ServerResponse<PageInfo> getDrawback(Integer pageNum,Integer pageSize){
+        PageHelper.startPage(pageNum,pageSize);
+        List<Drawback> drawbackList=drawbackMapper.selectAllDrawback();
+        List<DrawbackVo> drawbackVoList=Lists.newArrayList();
+        for(Drawback drawback:drawbackList){
+            DrawbackVo drawbackVo=assembleDrawbackVo(drawback);
+            drawbackVoList.add(drawbackVo);
+        }
+        PageInfo pageResult=new PageInfo(drawbackList);
+        pageResult.setList(drawbackVoList);
+        return ServerResponse.createBySuccess(pageResult);
+    }
+
+    public ServerResponse changePayment(Long orderNo, BigDecimal payment){
+        if (orderNo==null||payment==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+        }
+        Order order=orderMapper.selectByOrderNo(orderNo);
+        if (order==null){
+            return ServerResponse.createByErrorMessage("该订单号不存在！");
+        }
+        if (payment.compareTo(new BigDecimal("0"))<=0){
+            return ServerResponse.createByErrorMessage("修改后价格小于或等于0，有问题请重新更改价格");
+        }
+
+        int[] orderStatus={Const.OrderStatusEnum.DISDEAL.getCode(),Const.OrderStatusEnum.UNSUBMIT.getCode(),Const.OrderStatusEnum.DISPAY.getCode(),Const.OrderStatusEnum.UNDELIVERY.getCode()};
+        boolean judge=false;
+        for (int i=0;i<orderStatus.length;i++){
+            if (orderStatus[i]==order.getStatus()){
+                judge=true;
+            }
+        }
+        if (judge==false){
+            return ServerResponse.createByErrorMessage("该订单处于无法改价状态，请检查该订单状态或者让客户重新下单！");
+        }
+        Order updateOrder=new Order();
+        updateOrder.setId(order.getId());
+        updateOrder.setPayment(payment);
+
+        int rowCount=orderMapper.updateByPrimaryKeySelective(updateOrder);
+        if (rowCount>0){
+            return ServerResponse.createBySuccess("改价成功");
+        }
+        return ServerResponse.createByErrorMessage("改价失败，请联系技术人员");
+    }
+
+    public ServerResponse changeOrderPrice(Long orderNo,Integer productId,Integer productModelId, BigDecimal payment){
+        return null;
+    }
+
+    private DrawbackVo assembleDrawbackVo(Drawback drawback){
+        DrawbackVo drawbackVo=new DrawbackVo();
+
+        Order order=orderMapper.selectByOrderNo(drawback.getOrderNo());
+
+        List<OrderItem> orderItemList = orderItemMapper.getByOrderNoUserId(drawback.getOrderNo(),drawback.getUserId());
+        OrderVo orderVo = assembleOrderVo(order,orderItemList);
+
+        drawbackVo.setId(drawback.getId());
+        drawbackVo.setOrderTime(DataTimeUtil.dateToStr(drawback.getOrderTime()));
+        drawbackVo.setUserId(drawback.getUserId());
+        drawbackVo.setOrderNo(drawback.getOrderNo());
+        drawbackVo.setServiceType(drawback.getServiceType());
+        drawbackVo.setServiceTypeDesc(Const.ServiceTypeEnum.codeOf(drawbackVo.getServiceType()).getValue());
+        drawbackVo.setDrawbackMoney(drawback.getDrawbackMoney());
+        drawbackVo.setReason(drawback.getReason());
+        drawbackVo.setReasonDesc(Const.ReasonTypeEnum.codeOf(drawbackVo.getReason()).getValue());
+        drawbackVo.setRefundWay(drawback.getRefundWay());
+        drawbackVo.setRefundWayDesc(Const.PaymentTypeEnum.codeOf(order.getPaymentType()).getValue());
+        drawbackVo.setDescription(drawback.getDescription());
+        drawbackVo.setOrderVo(orderVo);
+
+        return  drawbackVo;
+    }
+
+    public ServerResponse fpList(Integer userId,Integer pageNum,Integer pageSize){
+
+        PageHelper.startPage(pageNum,pageSize);
+        List<Invoice> invoiceList=invoiceMapper.selectByUserId(userId);
+        List<InvoiceVo> invoiceVoList=Lists.newArrayList();
+        for(Invoice invoice:invoiceList){
+            InvoiceVo invoiceVo=assembleinvoiceVo(invoice);
+            invoiceVoList.add(invoiceVo);
+        }
+        PageInfo pageResult=new PageInfo(invoiceList);
+        pageResult.setList(invoiceVoList);
+        return ServerResponse.createBySuccess(pageResult);
+    }
+
+    private InvoiceVo assembleinvoiceVo(Invoice invoice){
+        InvoiceVo invoiceVo=new InvoiceVo();
+
+        invoiceVo.setFpLsh(invoice.getFpLsh());
+        invoiceVo.setKprq(DataTimeUtil.dateToStr(invoice.getKprq()));
+        invoiceVo.setFpDm(invoice.getFpDm());
+        invoiceVo.setFpHm(invoice.getFpHm());
+        invoiceVo.setFpGf(invoice.getFpGf());
+        invoiceVo.setFpGftax(invoice.getFpGftax());
+        invoiceVo.setFpXf(invoice.getFpXf());
+        invoiceVo.setFpTax(invoice.getFpTax());
+        invoiceVo.setPdfBdurl(invoice.getPdfBdurl());
+        invoiceVo.setHjbhsje(invoice.getHjbhsje());
+        invoiceVo.setKphjse(invoice.getKphjse());
+
+        return invoiceVo;
+    }
+
+    public ServerResponse sendMail(String mail,Long orderNo){
+        Invoice invoice=invoiceMapper.selectByOrderNo(orderNo);
+        if (invoice==null){
+            return ServerResponse.createByErrorMessage("该订单未开具发票，请确认！");
+        }
+
+        MailBean mb = new MailBean();
+        mb.setHost(PropertiesUtil.getProperty("mail.host")); // 设置SMTP主机(163)，若用126，则设为：smtp.126.com
+
+        mb.setUsername(PropertiesUtil.getProperty("mail.user")); // 设置发件人邮箱的用户名
+        mb.setPassword(PropertiesUtil.getProperty("mail.password")); // 设置发件人邮箱的密码，需将*号改成正确的密码
+        mb.setFrom(PropertiesUtil.getProperty("mail.form")); // 设置发件人的邮箱
+        mb.setTo(mail); // 设置收件人的邮箱
+        String title="【南京思贝丽】您有一张电子发票 [发票号码："+String.valueOf(invoice.getFpHm())+"]";
+        try {
+            mb.setSubject(MimeUtility.encodeText(title,MimeUtility.mimeCharset("gb2312"), null));
+        } catch (UnsupportedEncodingException e) {
+            mb.setSubject("dzfp");
+        }
+        String content="尊敬的客户您好：\n" +
+                "\n" +
+                "您的订单号为："+String.valueOf(orderNo)+"选择开具电子发票，我们将电子发票发送给您，以便作为您的维权保修 凭证、报销凭证。\n"
+                +"发票信息如下：\n" +
+                "开票时间："+DataTimeUtil.dateToStr(invoice.getKprq())+"\n" +
+                "发票代码："+invoice.getFpDm()+"\n" +
+                "发票号码："+invoice.getFpHm()+"\n" +
+                "销方名称："+invoice.getFpXf()+"\n" +
+                "购方名称："+invoice.getFpGf()+"\n" +
+                "价税合计：￥"+String.valueOf(invoice.getHjbhsje().add(invoice.getKphjse()))+"\n" +
+                "附件是电子发票PDF文件，供下载使用。";
+        mb.setContent(content); // 设置邮件的正文
+
+        mb.attachFile("C:\\ftpfile\\img\\dzfp\\"+invoice.getFpLsh()+"1234567"+".pdf"); // 往邮件中添加附件
+
+
+        SendMailUtil sm = new SendMailUtil();
+        System.out.println("正在发送邮件...");
+        // 发送邮件
+        if (sm.sendMail(mb)){
+            return ServerResponse.createBySuccess("发送邮件成功");
+        }else{
+            return ServerResponse.createByErrorMessage("发送邮件失败，请联系管理员");
+        }
+    }
+
+    public ServerResponse kjfp(Long orderNo, String companyName,String gmtax){
+        Invoice selectInvoice=invoiceMapper.selectByOrderNo(orderNo);
+        if (selectInvoice!=null){
+            return ServerResponse.createByErrorMessage("发票已开局，请勿重新申请！");
+        }
+        String xml = null;
+
+        Order order=orderMapper.selectByOrderNo(orderNo);
+        if (order.getStatus()!=Const.OrderStatusEnum.DELIVERY.getCode()){
+            return ServerResponse.createByErrorMessage("请您先确认收货，再尝试开具发票！");
+        }
+        List<OrderItem> orderItemList=orderItemMapper.getByOrderNo(orderNo);
+
+        try {
+            xml = kjxml(String.valueOf(orderNo)+"1234567",order.getPayment(),orderItemList,companyName,gmtax);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return ServerResponse.createByErrorMessage("参数错误，请联系管理员！");
+        }
+        String xmlBack = HttpRequestUtils.httpPost(Const.url, xml);
+        Invoice invoice=new Invoice();
+        invoice.setUserId(order.getUserId());
+        invoice.setFpLsh(String.valueOf(orderNo));
+        invoice.setOrderNo(orderNo);
+        invoice.setFpGf(companyName);
+        invoice.setFpGftax(gmtax);
+        invoiceMapper.insert(invoice);
+
+        log.info("back::"+xmlBack);
+        try {
+            fpxz(String.valueOf(orderNo)+"1234567");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ServerResponse.createBySuccess("开具发票成功");
+    }
+
+    private void fpxz(String lsh) throws Exception{
+        log.info("发票下载中：");
+        String xml = qzxml(lsh);
+        String xmlBack = HttpRequestUtils.httpPost(Const.url, xml);
+        String contentString = xmlBack.substring(xmlBack.indexOf("<content>")+9, xmlBack.indexOf("</content>"));
+        String str = Gzip.gunzip(contentString);
+
+        Map<String, String> map = new HashMap<String, String>();
+        Document document = DocumentHelper.parseText(str);
+        Element root = document.getRootElement();
+        List<Element> elements = root.elements();
+        for (Iterator<Element> it = elements.iterator(); it.hasNext();) {
+            Element element = it.next();
+            map.put(element.getName(),element.getText());
+        }
+
+        Invoice invoice=invoiceMapper.selectByOrderNo(Long.valueOf(lsh.substring(0,13)));
+        if (generateImage(map.get("EWM"),lsh+".jpg")){
+            invoice.setEwmUrl("http://pic.99sbl.com/ewm/"+lsh+".jpg");
+        }
+        invoice.setKprq(DataTimeUtil.strToDate(map.get("KPRQ")));
+        invoice.setFpDm(map.get("FP_DM"));
+        invoice.setFpHm(map.get("FP_HM"));
+        invoice.setFpXf(Const.XHFMC);
+        invoice.setFpTax(Const.tax);
+        invoice.setPdfUrl(map.get("PDF_URL"));
+        invoice.setPdfBdurl("http://pic.99sbl.com/dzfp/"+lsh+".pdf");
+        invoice.setHjbhsje(new BigDecimal(map.get("HJBHSJE")).setScale(2, BigDecimal.ROUND_HALF_UP));
+        invoice.setKphjse(new BigDecimal(map.get("KPHJSE")).setScale(2, BigDecimal.ROUND_HALF_UP));
+        invoiceMapper.updateByPrimaryKeySelective(invoice);
+
+        //下载发票pdf
+        String file = str.substring(str.indexOf("<PDF_FILE>")+10, str.indexOf("</PDF_FILE>")).replace("&#xd;","");
+        System.out.println(" >>>>> "+file);
+        FileUtil.SavePDF(lsh, file, Const.fpDownUrl);
+    }
+
+    private  String qzxml(String lsh) throws UnsupportedEncodingException{
+        String dzfpkj = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+                + "<interface xmlns=\"\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+                + "xsi:schemaLocation=\"http://www.chinatax.gov.cn/tirip/dataspec/interfaces.xsd\" "
+                + "version=\"DZFP1.0\">"
+                + "<globalInfo>"
+                + "<terminalCode>0</terminalCode>"
+                + "<appId>ZZS_PT_DZFP</appId>"
+                + "<version>2.0</version>"
+                + "<interfaceCode>ECXML.FPXZ.CX.E_INV</interfaceCode>"//接口编码
+                + "<requestCode>" + Const.DSPTBM + "</requestCode>"
+                + "<requestTime>2017-10-13 15:51:38 837</requestTime>"
+                + "<responseCode>144</responseCode>"//数据交换请求接收方代码：固定144
+                + "<dataExchangeId>"+lsh+"</dataExchangeId>"//流水号
+                + "<userName>" + Const.DSPTBM + "</userName>"
+                + "<passWord>"+Const.passWord+"</passWord>"//-------平台密码
+                + "<taxpayerId>" + Const.tax + "</taxpayerId>"//--------------------------企业税号
+                + "<authorizationCode>"+Const.authorizationCode+"</authorizationCode>"//-------------注册后的授权码
+                + "<fjh></fjh>"
+                + "</globalInfo>"
+                + "<returnStateInfo>"
+                + "<returnCode/>"
+                + "<returnMessage/>"
+                + "</returnStateInfo>"
+                + "<Data>"
+                + "<dataDescription>"
+                + "<zipCode>0</zipCode>"//压缩标识
+                + "<encryptCode>0</encryptCode>"//加密标识
+                + "<codeType>0</codeType>"//加密方式
+                + "</dataDescription>"
+                + "<content>" + qzInner(lsh) + "</content>"//拼接内部报文
+                + "</Data>"
+                + "</interface>";
+        System.out.println("报文："+dzfpkj);
+        return dzfpkj;
+    }
+
+    private String qzInner(String lsh) throws UnsupportedEncodingException{
+        String content_LS = "<REQUEST_FPXXXZ_NEW class=\"REQUEST_FPXXXZ_NEW\">"
+                + "<FPQQLSH>"+lsh+"</FPQQLSH>"//发票请求唯一流水号
+                + "<DSPTBM>" + Const.DSPTBM + "</DSPTBM>"//-------------平台编码
+                + "<NSRSBH>" + Const.tax + "</NSRSBH>"//--------------开票方税号
+                + "<DDH>27121550</DDH>"//订单号   非必填
+                + "<PDF_XZFS>3</PDF_XZFS>"//PDF下载方式  详见接口文档
+                + "</REQUEST_FPXXXZ_NEW>";
+        System.out.println("明文："+content_LS);
+
+        Base64 base64=new Base64();
+        return new String(base64.encode(content_LS.getBytes("UTF-8")), "UTF-8");
+    }
+
+    private String kjxml(String lsh,BigDecimal payment,List<OrderItem> orderItemList,String companyName,String gmtax) throws UnsupportedEncodingException{
+        String dzfpkj = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+                + "<interface xmlns=\"\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+                + "xsi:schemaLocation=\"http://www.chinatax.gov.cn/tirip/dataspec/interfaces.xsd\" "
+                + "version=\"DZFP1.0\">"
+                + "<globalInfo>"
+                + "<terminalCode>0</terminalCode>"//终端类型标识(0:B/S请求来源;1:C/S请求来源)
+                + "<appId>ZZS_PT_DZFP</appId>"
+                + "<version>2.0</version>"
+                + "<interfaceCode>ECXML.FPKJ.BC.E_INV</interfaceCode>"//-----接口编码
+                + "<requestCode>"+Const.DSPTBM+"</requestCode>"//-------------------平台编码
+                + "<requestTime>2017-12-30 08:00:00 55</requestTime>"
+                + "<responseCode>144</responseCode>" //数据交换请求接收方代码：固定144
+                + "<dataExchangeId>"+lsh+"</dataExchangeId>"//流水号
+                + "<userName>"+Const.DSPTBM+"</userName>"//-----------------平台编码
+                + "<passWord>"+Const.passWord+"</passWord>"//---------------平台密码
+                + "<taxpayerId>" + Const.tax + "</taxpayerId>"//-----------------企业税号
+                + "<authorizationCode>"+Const.authorizationCode+"</authorizationCode>"//------------------注册后的授权码
+                + "<fjh></fjh>"
+                + "</globalInfo>"
+                + "<returnStateInfo>"
+                + "<returnCode/>"
+                + "<returnMessage/>"
+                + "</returnStateInfo>"
+                + "<Data>"
+                + "<dataDescription>"
+                + "<zipCode>0</zipCode>"//压缩标识
+                + "<encryptCode>0</encryptCode>"//加密标识
+                + "<codeType>0</codeType>"//加密方式
+                + "</dataDescription>"
+                + "<content>" + kjInner(lsh,payment,orderItemList,companyName,gmtax) + "</content>"//拼接内部报文
+                + "</Data>"
+                + "</interface>";
+        log.info("报文："+dzfpkj);
+        return dzfpkj;
+    }
+
+    private String kjInner(String lsh,BigDecimal payment,List<OrderItem> orderItemList,String companyName,String gmtax) throws UnsupportedEncodingException{
+        String content_LS = "<REQUEST_FPKJXX class=\"REQUEST_FPKJXX\">"
+                + "<FPKJXX_FPTXX class=\"FPKJXX_FPTXX\">"
+                + "<FPQQLSH>"+lsh+"</FPQQLSH>"//流水号、建议与外层保持一致
+                + "<DSPTBM>"+Const.DSPTBM+"</DSPTBM>"//---------------------平台编码，与外层保持一致
+                + "<NSRSBH>" + Const.tax + "</NSRSBH>"//------------------企业税号，与外层一致
+                + "<NSRMC>"+Const.XHFMC+"</NSRMC>" //---------------------企业名称
+                + "<NSRDZDAH></NSRDZDAH>"//开票方电子档案号(不是必填)
+                + "<SWJG_DM></SWJG_DM>"
+                + "<DKBZ>0</DKBZ>" //代开标志(0：自开   1：代开)
+                + "<PYDM>000001</PYDM>"//固定值、勿修改！(票样代码)
+                + "<KPXM>办公用品</KPXM>"//开票项目    主要开票商品，或者第一条商品，取项目信息中第一条数据的项目名称（或传递大类例如：办公用品）
+                + "<XHF_NSRSBH>" + Const.tax + "</XHF_NSRSBH>"
+                + "<XHFMC>"+Const.XHFMC+"</XHFMC>"
+                + "<XHF_DZ>"+Const.XHF_DZ+"</XHF_DZ>"
+                + "<XHF_DH>"+Const.XHF_DH+"</XHF_DH>"
+                + "<XHF_YHZH>"+Const.XHF_YHZH+"</XHF_YHZH>"
+                + "<GHFMC>"+companyName+"</GHFMC>" //购买方名称
+                + "<GHF_NSRSBH>"+gmtax+"</GHF_NSRSBH>"//购买方税号
+                + "<GHF_SF></GHF_SF>"
+                + "<GHF_DZ></GHF_DZ>"
+                + "<GHF_GDDH></GHF_GDDH>"
+                + "<GHF_SJ>13616200405</GHF_SJ>"
+                + "<GHF_EMAIL></GHF_EMAIL>"
+                + "<GHFQYLX>01</GHFQYLX>"//购货方企业类型
+                + "<GHF_YHZH></GHF_YHZH>"
+                + "<HY_DM></HY_DM>"
+                + "<HY_MC></HY_MC>"
+                + "<KPY>"+Const.kpr+"</KPY>" //开票人
+                + "<SKY></SKY>"
+                + "<FHR></FHR>"
+                + "<KPRQ></KPRQ>"
+                + "<KPLX>1</KPLX>"//---------------------------开票类型：1正票、2红票
+                + "<YFP_DM></YFP_DM>"
+                + "<YFP_HM></YFP_HM>"
+                + "<CZDM>10</CZDM>"
+                + "<CHYY></CHYY>"
+                + "<TSCHBZ>0</TSCHBZ>"
+                + "<KPHJJE>"+String.valueOf(payment)+"</KPHJJE>"
+                + "<HJBHSJE>"+String.valueOf(payment.subtract(getBigdecimalSE(payment)))+"</HJBHSJE>"
+                + "<HJSE>"+getSE(payment)+"</HJSE>"
+                + "<BZ></BZ>"
+                + "<QDBZ>0</QDBZ>" //清单标志：默认为0
+                + "<QD_BZ>0</QD_BZ>" //清单标志：默认为0
+                + "<QDXMMC></QDXMMC>" //清单项目名称：清单标志为0时不做处理
+                + "<FJH></FJH>"
+                + "<BMB_BBH>18.0</BMB_BBH>" //编码表版本号：当前为18.0，这个不重要
+                + "</FPKJXX_FPTXX>"
+                +assembleXmxxs(orderItemList)
+                //订单信息
+                + "<FPKJXX_DDXX class=\"FPKJXX_DDXX\" size=\"1\">"
+                + "<DDH></DDH>"
+                + "<THDH></THDH>"
+                + "<DDDATE></DDDATE>"
+                + "<DDLX></DDLX>"
+                + "</FPKJXX_DDXX>"
+                //订单明细信息
+                + "<FPKJXX_DDMXXXS class=\"FPKJXX_DDMXXX;\" size=\"0\"/>"
+                //支付信息
+                + "<FPKJXX_ZFXX class=\"FPKJXX_ZFXX\"/>"
+                //物流信息
+                + "<FPKJXX_WLXX class=\"FPKJXX_WLXX\"/>"
+                + "</REQUEST_FPKJXX>";
+
+        log.info("明文："+content_LS);
+
+        Base64 base64=new Base64();
+        return new String(base64.encode(content_LS.getBytes("UTF-8")), "UTF-8");
+    }
+
+    private String assembleXmxxs(List<OrderItem> orderItemList){
+        String xmxxs="<FPKJXX_XMXXS class=\"FPKJXX_XMXX;\" size=\"1\">";
+        for (OrderItem orderItem:orderItemList){
+            String modelName="";
+            String modelUnit="";
+            if (orderItem.getModelUnit()!=null){
+                modelUnit=orderItem.getModelUnit();
+            }
+            if (orderItem.getModelName()!=null){
+                modelName=orderItem.getModelName();
+            }
+            String xmxx="<FPKJXX_XMXX>"
+                    + "<XMMC><![CDATA["+"联想启天M410商用台式机"+"]]></XMMC>" //格式为   商品名称      如有多条明细，第一条的名称与上面的名称一致(发票的票面上货物或服务名称)
+                    + "<XMDW><![CDATA["+modelUnit+"]]></XMDW>"
+                    + "<GGXH><![CDATA["+modelName+"]]></GGXH>"
+                    + "<XMSL>"+String.valueOf(orderItem.getQuantity())+"</XMSL>"
+                    + "<HSBZ>1</HSBZ>"
+                    + "<XMDJ>"+String .valueOf(orderItem.getCurrentUnitPrice())+"</XMDJ>"
+                    + "<XMBM></XMBM>"
+                    + "<XMJE>"+String.valueOf(orderItem.getTotalPrice())+"</XMJE>"
+                    + "<SL>"+String.valueOf(Const.sl)+"</SL>"
+                    + "<SE>"+getSE(orderItem.getTotalPrice())+"</SE>"
+                    + "<SPHXZ>0</SPHXZ>"
+                    + "<ZKHS></ZKHS>"
+                    + "<FPHXZ>0</FPHXZ>"//发票行性质(0：正常化    1：折扣行      2：被折扣行)
+                    + "<SPBM>1100301010000000000</SPBM>"
+                    + "<ZXBM></ZXBM>"
+                    + "<YHZCBS>0</YHZCBS>"
+                    + "<LSLBS></LSLBS>"
+                    + "<ZZSTSGL></ZZSTSGL>"
+                    + "</FPKJXX_XMXX>";
+            xmxxs=xmxxs+xmxx;
+        }
+        xmxxs=xmxxs+ "</FPKJXX_XMXXS>";
+        return xmxxs;
+    }
+
+    private String getSE(BigDecimal payment){
+        BigDecimal se= BigDecimalUtil.add(Const.sl,1);
+        BigDecimal bhse=payment.subtract(payment.divide(se, Const.Decimal_digits,BigDecimal.ROUND_HALF_UP));
+        String SE=String.valueOf(bhse);
+        return SE;
+    }
+
+    private BigDecimal getBigdecimalSE(BigDecimal payment){
+        BigDecimal se= BigDecimalUtil.add(Const.sl,1);
+        BigDecimal bhse=payment.subtract(payment.divide(se, Const.Decimal_digits,BigDecimal.ROUND_HALF_UP));
+        return bhse;
+    }
+
+    private boolean generateImage(String imgStr,String filename){
+        if (imgStr == null) {
+            return false;
+        }
+        BASE64Decoder decoder = new BASE64Decoder();
+        try {
+            // 解密
+            byte[] b = decoder.decodeBuffer(imgStr);
+            // 处理数据
+            for(int i = 0; i < b.length; ++i) {
+                if (b[i] < 0) {
+                    b[i] += 256;
+                }
+            }
+            OutputStream out = new FileOutputStream("C:\\ftpfile\\img\\ewm\\"+filename);
+            out.write(b);
+            out.flush();
+            out.close();
+            return true;
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }

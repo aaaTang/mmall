@@ -1,5 +1,7 @@
 package com.mmall.util;
 
+import com.mmall.pojo.EnterUser;
+import com.mmall.pojo.User;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.DeserializationConfig;
@@ -89,6 +91,20 @@ public class JsonUtil {
         } catch (Exception e) {
             log.warn("Parse String to Object error",e);
             return null;
+        }
+    }
+
+    public static void main(String[] args) {
+        EnterUser enterUser=new EnterUser();
+        enterUser.setEnterUserId(123);
+        enterUser.setEnterName("南京四倍力");
+
+        String enter=obj2String(enterUser);
+        System.out.println(enter);
+
+        User user=string2Obj(enter,User.class);
+        if (user.getId()==null){
+            System.out.println("为空");
         }
     }
 

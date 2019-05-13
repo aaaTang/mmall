@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mmall.dao.InvoiceMapper" >
+  <resultMap id="BaseResultMap" type="com.mmall.pojo.Invoice" >
+    <constructor >
+      <idArg column="fp_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="user_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="fp_lsh" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="order_no" jdbcType="BIGINT" javaType="java.lang.Long" />
+      <arg column="ewm_url" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="kprq" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="fp_dm" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="fp_hm" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="fp_gf" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="fp_gftax" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="fp_xf" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="fp_tax" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="pdf_url" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="pdf_bdurl" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="hjbhsje" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="kphjse" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="status" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    fp_id, user_id, fp_lsh, order_no, ewm_url, kprq, fp_dm, fp_hm, fp_gf, fp_gftax, fp_xf, fp_tax,
+    pdf_url, pdf_bdurl, hjbhsje, kphjse, status, create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from mmall_dzfp
+    where fp_id = #{fpId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from mmall_dzfp
+    where fp_id = #{fpId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mmall.pojo.Invoice" >
+    insert into mmall_dzfp (fp_id, user_id, fp_lsh, order_no,
+      ewm_url, kprq, fp_dm, 
+      fp_hm, fp_gf, fp_gftax, 
+      fp_xf, fp_tax, pdf_url, 
+      pdf_bdurl, hjbhsje, kphjse, status,
+      create_time, update_time)
+    values (#{fpId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{fpLsh,jdbcType=VARCHAR}, #{orderNo,jdbcType=BIGINT},
+      #{ewmUrl,jdbcType=VARCHAR}, #{kprq,jdbcType=TIMESTAMP}, #{fpDm,jdbcType=VARCHAR}, 
+      #{fpHm,jdbcType=VARCHAR}, #{fpGf,jdbcType=VARCHAR}, #{fpGftax,jdbcType=VARCHAR}, 
+      #{fpXf,jdbcType=VARCHAR}, #{fpTax,jdbcType=VARCHAR}, #{pdfUrl,jdbcType=VARCHAR}, 
+      #{pdfBdurl,jdbcType=VARCHAR}, #{hjbhsje,jdbcType=DECIMAL}, #{kphjse,jdbcType=DECIMAL}, #{status,jdbcType=INTEGER},
+      now(), now())
+  </insert>
+  <insert id="insertSelective" parameterType="com.mmall.pojo.Invoice" >
+    insert into mmall_dzfp
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="fpId != null" >
+        fp_id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="fpLsh != null" >
+        fp_lsh,
+      </if>
+      <if test="orderNo != null" >
+        order_no,
+      </if>
+      <if test="ewmUrl != null" >
+        ewm_url,
+      </if>
+      <if test="kprq != null" >
+        kprq,
+      </if>
+      <if test="fpDm != null" >
+        fp_dm,
+      </if>
+      <if test="fpHm != null" >
+        fp_hm,
+      </if>
+      <if test="fpGf != null" >
+        fp_gf,
+      </if>
+      <if test="fpGftax != null" >
+        fp_gftax,
+      </if>
+      <if test="fpXf != null" >
+        fp_xf,
+      </if>
+      <if test="fpTax != null" >
+        fp_tax,
+      </if>
+      <if test="pdfUrl != null" >
+        pdf_url,
+      </if>
+      <if test="pdfBdurl != null" >
+        pdf_bdurl,
+      </if>
+      <if test="hjbhsje != null" >
+        hjbhsje,
+      </if>
+      <if test="kphjse != null" >
+        kphjse,
+      </if>
+      <if test="status != null" >
+          status,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="fpId != null" >
+        #{fpId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="fpLsh != null" >
+        #{fpLsh,jdbcType=VARCHAR},
+      </if>
+      <if test="orderNo != null" >
+        #{orderNo,jdbcType=BIGINT},
+      </if>
+      <if test="ewmUrl != null" >
+        #{ewmUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="kprq != null" >
+        #{kprq,jdbcType=TIMESTAMP},
+      </if>
+      <if test="fpDm != null" >
+        #{fpDm,jdbcType=VARCHAR},
+      </if>
+      <if test="fpHm != null" >
+        #{fpHm,jdbcType=VARCHAR},
+      </if>
+      <if test="fpGf != null" >
+        #{fpGf,jdbcType=VARCHAR},
+      </if>
+      <if test="fpGftax != null" >
+        #{fpGftax,jdbcType=VARCHAR},
+      </if>
+      <if test="fpXf != null" >
+        #{fpXf,jdbcType=VARCHAR},
+      </if>
+      <if test="fpTax != null" >
+        #{fpTax,jdbcType=VARCHAR},
+      </if>
+      <if test="pdfUrl != null" >
+        #{pdfUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="pdfBdurl != null" >
+        #{pdfBdurl,jdbcType=VARCHAR},
+      </if>
+      <if test="hjbhsje != null" >
+        #{hjbhsje,jdbcType=DECIMAL},
+      </if>
+      <if test="kphjse != null" >
+        #{kphjse,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        now(),
+      </if>
+      <if test="updateTime != null" >
+        now(),
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mmall.pojo.Invoice" >
+    update mmall_dzfp
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="fpLsh != null" >
+        fp_lsh = #{fpLsh,jdbcType=VARCHAR},
+      </if>
+      <if test="orderNo != null" >
+        order_no = #{orderNo,jdbcType=BIGINT},
+      </if>
+      <if test="ewmUrl != null" >
+        ewm_url = #{ewmUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="kprq != null" >
+        kprq = #{kprq,jdbcType=TIMESTAMP},
+      </if>
+      <if test="fpDm != null" >
+        fp_dm = #{fpDm,jdbcType=VARCHAR},
+      </if>
+      <if test="fpHm != null" >
+        fp_hm = #{fpHm,jdbcType=VARCHAR},
+      </if>
+      <if test="fpGf != null" >
+        fp_gf = #{fpGf,jdbcType=VARCHAR},
+      </if>
+      <if test="fpGftax != null" >
+        fp_gftax = #{fpGftax,jdbcType=VARCHAR},
+      </if>
+      <if test="fpXf != null" >
+        fp_xf = #{fpXf,jdbcType=VARCHAR},
+      </if>
+      <if test="fpTax != null" >
+        fp_tax = #{fpTax,jdbcType=VARCHAR},
+      </if>
+      <if test="pdfUrl != null" >
+        pdf_url = #{pdfUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="pdfBdurl != null" >
+        pdf_bdurl = #{pdfBdurl,jdbcType=VARCHAR},
+      </if>
+      <if test="hjbhsje != null" >
+        hjbhsje = #{hjbhsje,jdbcType=DECIMAL},
+      </if>
+      <if test="kphjse != null" >
+        kphjse = #{kphjse,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null" >
+          status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = now(),
+      </if>
+    </set>
+    where fp_id = #{fpId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mmall.pojo.Invoice" >
+    update mmall_dzfp
+    set  user_id= #{userId,jdbcType=INTEGER}
+      fp_lsh = #{fpLsh,jdbcType=VARCHAR},
+      order_no = #{orderNo,jdbcType=BIGINT},
+      ewm_url = #{ewmUrl,jdbcType=VARCHAR},
+      kprq = #{kprq,jdbcType=TIMESTAMP},
+      fp_dm = #{fpDm,jdbcType=VARCHAR},
+      fp_hm = #{fpHm,jdbcType=VARCHAR},
+      fp_gf = #{fpGf,jdbcType=VARCHAR},
+      fp_gftax = #{fpGftax,jdbcType=VARCHAR},
+      fp_xf = #{fpXf,jdbcType=VARCHAR},
+      fp_tax = #{fpTax,jdbcType=VARCHAR},
+      pdf_url = #{pdfUrl,jdbcType=VARCHAR},
+      pdf_bdurl = #{pdfBdurl,jdbcType=VARCHAR},
+      hjbhsje = #{hjbhsje,jdbcType=DECIMAL},
+      kphjse = #{kphjse,jdbcType=DECIMAL},
+      status= #{status,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = now()
+    where fp_id = #{fpId,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectByOrderNo" parameterType="long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from mmall_dzfp
+    where order_no=#{orderNo}
+  </select>
+
+  <select id="selectByLsh" parameterType="String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from mmall_dzfp
+    where fp_lsh=#{lsh}
+  </select>
+
+  <select id="selectByUserId" parameterType="integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from mmall_dzfp
+    where user_id=#{userId,jdbcType=INTEGER}
+    order by kprq desc
+  </select>
+
+  <select id="selectByNoUserId" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from mmall_dzfp
+    where user_id is null
+    order by create_time desc
+  </select>
+
+</mapper>

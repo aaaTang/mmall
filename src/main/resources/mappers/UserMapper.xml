@@ -26,6 +26,12 @@
     from mmall_user
     where id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="selectByUserName" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from mmall_user
+    where username = #{username,jdbcType=VARCHAR}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from mmall_user
     where id = #{id,jdbcType=INTEGER}
@@ -176,12 +182,12 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
 
-  <select id="checkUsername" resultType="int" parameterType="string">
+  <select id="checkUsername" resultType="java.lang.Integer" parameterType="string">
     select count(1) from mmall_user
     where username = #{username}
   </select>
 
-  <select id="checkEmail" resultType="int" parameterType="string">
+  <select id="checkEmail" resultType="java.lang.Integer" parameterType="string">
     select count(1) from mmall_user
     where email = #{email}
   </select>
@@ -195,7 +201,7 @@
 
   </select>
 
-  <select id="selectQuestionByUsername" resultType="string" parameterType="string">
+  <select id="selectQuestionByUsername" resultType="java.lang.String" parameterType="string">
 
     select
     question
@@ -203,7 +209,7 @@
     where username=#{username}
   </select>
 
-  <select id="checkAnswer" resultType="int" parameterType="map">
+  <select id="checkAnswer" resultType="java.lang.Integer" parameterType="map">
     select
     count(1)
     from mmall_user
@@ -219,7 +225,7 @@
 
   </update>
 
-  <select id="checkPassword" resultType="int" parameterType="map">
+  <select id="checkPassword" resultType="java.lang.Integer" parameterType="map">
     select
     count(1)
     from mmall_user
@@ -227,14 +233,20 @@
     and id=#{userId}
   </select>
 
-  <select id="checkEmailByUserId" resultType="int" parameterType="map">
+  <select id="checkEmailByUserId" resultType="java.lang.Integer" parameterType="map">
     select count(1) from mmall_user
     where email=#{email}
     and id !=#{userId}
   </select>
 
-  <select id="selectAllUserId" resultType="integer">
+  <select id="selectAllUserId" resultType="java.lang.Integer">
     select id
+    from mmall_user
+  </select>
+
+  <select id="selectAllUser" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
     from mmall_user
   </select>
 

@@ -13,6 +13,8 @@ public interface CategoryMapper {
 
     Category selectByPrimaryKey(Integer id);
 
+    Category selectByCategoryCode(String categoryCode);
+
     int updateByPrimaryKeySelective(Category record);
 
     int updateByPrimaryKey(Category record);
@@ -21,7 +23,13 @@ public interface CategoryMapper {
 
     List<Category> getList();
 
+    List<Category> getAllList();
+
     List<Category> getAllSecondCategory();
+
+    List<Category> getSecondCategoryHas();
+
+    List<Category> getApiCategory();
 
     Category selectByJdCode(int jdCode);
 }

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mmall.dao.DzfpCartMapper" >
+  <resultMap id="BaseResultMap" type="com.mmall.pojo.DzfpCart" >
+    <constructor >
+      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="fp_lsh" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="product_name" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="unit" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="xinghao" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="count" jdbcType="INTEGER" javaType="java.lang.Float" />
+      <arg column="price" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="total_price" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="sl" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="se" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, fp_lsh, product_name, unit, xinghao, count, price, total_price, sl, se
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from mmall_dzfp_cart
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from mmall_dzfp_cart
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mmall.pojo.DzfpCart" >
+    insert into mmall_dzfp_cart (id, fp_lsh, product_name, 
+      unit, xinghao, count, 
+      price, total_price, sl, 
+      se)
+    values (#{id,jdbcType=INTEGER}, #{fpLsh,jdbcType=VARCHAR}, #{productName,jdbcType=VARCHAR}, 
+      #{unit,jdbcType=VARCHAR}, #{xinghao,jdbcType=VARCHAR}, #{count,jdbcType=FLOAT},
+      #{price,jdbcType=DECIMAL}, #{totalPrice,jdbcType=DECIMAL}, #{sl,jdbcType=DECIMAL}, 
+      #{se,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="com.mmall.pojo.DzfpCart" >
+    insert into mmall_dzfp_cart
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="fpLsh != null" >
+        fp_lsh,
+      </if>
+      <if test="productName != null" >
+        product_name,
+      </if>
+      <if test="unit != null" >
+        unit,
+      </if>
+      <if test="xinghao != null" >
+        xinghao,
+      </if>
+      <if test="count != null" >
+        count,
+      </if>
+      <if test="price != null" >
+        price,
+      </if>
+      <if test="totalPrice != null" >
+        total_price,
+      </if>
+      <if test="sl != null" >
+        sl,
+      </if>
+      <if test="se != null" >
+        se,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="fpLsh != null" >
+        #{fpLsh,jdbcType=VARCHAR},
+      </if>
+      <if test="productName != null" >
+        #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="unit != null" >
+        #{unit,jdbcType=VARCHAR},
+      </if>
+      <if test="xinghao != null" >
+        #{xinghao,jdbcType=VARCHAR},
+      </if>
+      <if test="count != null" >
+        #{count,jdbcType=FLOAT},
+      </if>
+      <if test="price != null" >
+        #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="totalPrice != null" >
+        #{totalPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="sl != null" >
+        #{sl,jdbcType=DECIMAL},
+      </if>
+      <if test="se != null" >
+        #{se,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mmall.pojo.DzfpCart" >
+    update mmall_dzfp_cart
+    <set >
+      <if test="fpLsh != null" >
+        fp_lsh = #{fpLsh,jdbcType=VARCHAR},
+      </if>
+      <if test="productName != null" >
+        product_name = #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="unit != null" >
+        unit = #{unit,jdbcType=VARCHAR},
+      </if>
+      <if test="xinghao != null" >
+        xinghao = #{xinghao,jdbcType=VARCHAR},
+      </if>
+      <if test="count != null" >
+        count = #{count,jdbcType=FLOAT},
+      </if>
+      <if test="price != null" >
+        price = #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="totalPrice != null" >
+        total_price = #{totalPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="sl != null" >
+        sl = #{sl,jdbcType=DECIMAL},
+      </if>
+      <if test="se != null" >
+        se = #{se,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mmall.pojo.DzfpCart" >
+    update mmall_dzfp_cart
+    set fp_lsh = #{fpLsh,jdbcType=VARCHAR},
+      product_name = #{productName,jdbcType=VARCHAR},
+      unit = #{unit,jdbcType=VARCHAR},
+      xinghao = #{xinghao,jdbcType=VARCHAR},
+      count = #{count,jdbcType=FLOAT},
+      price = #{price,jdbcType=DECIMAL},
+      total_price = #{totalPrice,jdbcType=DECIMAL},
+      sl = #{sl,jdbcType=DECIMAL},
+      se = #{se,jdbcType=DECIMAL}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectAllDzfpCart" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from mmall_dzfp_cart
+  </select>
+
+</mapper>

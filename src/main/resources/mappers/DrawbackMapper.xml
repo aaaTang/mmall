@@ -171,4 +171,10 @@
     where user_id=#{userId,jdbcType=INTEGER}
     and order_no=#{orderNo}
   </select>
+
+  <select id="selectAllDrawback" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from mmall_drawback
+  </select>
 </mapper>

@@ -136,7 +136,7 @@
     order by create_time desc
   </select>
 
-  <select id="selectNum" resultType="integer" parameterType="integer">
+  <select id="selectNum" resultType="java.lang.Integer" parameterType="integer">
     select count(*)
     from mmall_message
     where goal_user=#{userId,jdbcType=INTEGER}

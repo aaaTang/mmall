@@ -18,9 +18,13 @@ public interface IUserService {
 
     ServerResponse<String> resetPassword(String passwordOld,String passwordNew,User user);
 
+    ServerResponse<String> resetPasswordById(String userName,String passwordOld,String passwordNew);
+
     ServerResponse<User> updateInformation(User user);
 
     ServerResponse<User> getInformation(Integer userId);
 
     ServerResponse checkAdminRole(User user);
+
+    ServerResponse getUserList(Integer pageNum,Integer pageSize);
 }

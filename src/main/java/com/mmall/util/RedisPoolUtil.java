@@ -86,22 +86,4 @@ public class RedisPoolUtil {
         RedisPool.returnResource(jedis);
         return result;
     }
-
-    public static void main(String[] args) {
-        Jedis jedis=RedisPool.getJedis();
-
-        RedisPoolUtil.set("tang","wen");
-
-        String value=RedisPoolUtil.get("tang");
-
-        RedisPoolUtil.setEx("keyex","test",60*10);
-
-        RedisPoolUtil.expire("tang",60*20);
-
-        RedisPoolUtil.del("tang");
-
-        System.out.println("end");
-
-    }
-
 }

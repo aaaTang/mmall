@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mmall.dao.DzfpProductMapper" >
+  <resultMap id="BaseResultMap" type="com.mmall.pojo.DzfpProduct" >
+    <constructor >
+      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="code" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="product_name" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="jianma" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="shuimu" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="shuilv" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="xinghao" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="unit" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="price" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="hsjbz" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="ycbz" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="zwhzyqt" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="ssflbm" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="yhzc" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="ssflbm_name" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="yhzc_type" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="lslbz" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="bmbbh" jdbcType="VARCHAR" javaType="java.lang.String" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, code, product_name, jianma, shuimu, shuilv, xinghao, unit, price, hsjbz, ycbz, 
+    zwhzyqt, ssflbm, yhzc, ssflbm_name, yhzc_type, lslbz, bmbbh
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from mmall_dzfp_product
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from mmall_dzfp_product
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mmall.pojo.DzfpProduct" >
+    insert into mmall_dzfp_product (id, code, product_name, 
+      jianma, shuimu, shuilv, 
+      xinghao, unit, price, 
+      hsjbz, ycbz, zwhzyqt, 
+      ssflbm, yhzc, ssflbm_name, 
+      yhzc_type, lslbz, bmbbh
+      )
+    values (#{id,jdbcType=INTEGER}, #{code,jdbcType=VARCHAR}, #{productName,jdbcType=VARCHAR}, 
+      #{jianma,jdbcType=VARCHAR}, #{shuimu,jdbcType=VARCHAR}, #{shuilv,jdbcType=VARCHAR}, 
+      #{xinghao,jdbcType=VARCHAR}, #{unit,jdbcType=VARCHAR}, #{price,jdbcType=DECIMAL}, 
+      #{hsjbz,jdbcType=VARCHAR}, #{ycbz,jdbcType=VARCHAR}, #{zwhzyqt,jdbcType=VARCHAR}, 
+      #{ssflbm,jdbcType=VARCHAR}, #{yhzc,jdbcType=VARCHAR}, #{ssflbmName,jdbcType=VARCHAR}, 
+      #{yhzcType,jdbcType=VARCHAR}, #{lslbz,jdbcType=VARCHAR}, #{bmbbh,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.mmall.pojo.DzfpProduct" >
+    insert into mmall_dzfp_product
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="code != null" >
+        code,
+      </if>
+      <if test="productName != null" >
+        product_name,
+      </if>
+      <if test="jianma != null" >
+        jianma,
+      </if>
+      <if test="shuimu != null" >
+        shuimu,
+      </if>
+      <if test="shuilv != null" >
+        shuilv,
+      </if>
+      <if test="xinghao != null" >
+        xinghao,
+      </if>
+      <if test="unit != null" >
+        unit,
+      </if>
+      <if test="price != null" >
+        price,
+      </if>
+      <if test="hsjbz != null" >
+        hsjbz,
+      </if>
+      <if test="ycbz != null" >
+        ycbz,
+      </if>
+      <if test="zwhzyqt != null" >
+        zwhzyqt,
+      </if>
+      <if test="ssflbm != null" >
+        ssflbm,
+      </if>
+      <if test="yhzc != null" >
+        yhzc,
+      </if>
+      <if test="ssflbmName != null" >
+        ssflbm_name,
+      </if>
+      <if test="yhzcType != null" >
+        yhzc_type,
+      </if>
+      <if test="lslbz != null" >
+        lslbz,
+      </if>
+      <if test="bmbbh != null" >
+        bmbbh,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="code != null" >
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="productName != null" >
+        #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="jianma != null" >
+        #{jianma,jdbcType=VARCHAR},
+      </if>
+      <if test="shuimu != null" >
+        #{shuimu,jdbcType=VARCHAR},
+      </if>
+      <if test="shuilv != null" >
+        #{shuilv,jdbcType=VARCHAR},
+      </if>
+      <if test="xinghao != null" >
+        #{xinghao,jdbcType=VARCHAR},
+      </if>
+      <if test="unit != null" >
+        #{unit,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null" >
+        #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="hsjbz != null" >
+        #{hsjbz,jdbcType=VARCHAR},
+      </if>
+      <if test="ycbz != null" >
+        #{ycbz,jdbcType=VARCHAR},
+      </if>
+      <if test="zwhzyqt != null" >
+        #{zwhzyqt,jdbcType=VARCHAR},
+      </if>
+      <if test="ssflbm != null" >
+        #{ssflbm,jdbcType=VARCHAR},
+      </if>
+      <if test="yhzc != null" >
+        #{yhzc,jdbcType=VARCHAR},
+      </if>
+      <if test="ssflbmName != null" >
+        #{ssflbmName,jdbcType=VARCHAR},
+      </if>
+      <if test="yhzcType != null" >
+        #{yhzcType,jdbcType=VARCHAR},
+      </if>
+      <if test="lslbz != null" >
+        #{lslbz,jdbcType=VARCHAR},
+      </if>
+      <if test="bmbbh != null" >
+        #{bmbbh,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mmall.pojo.DzfpProduct" >
+    update mmall_dzfp_product
+    <set >
+      <if test="code != null" >
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="productName != null" >
+        product_name = #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="jianma != null" >
+        jianma = #{jianma,jdbcType=VARCHAR},
+      </if>
+      <if test="shuimu != null" >
+        shuimu = #{shuimu,jdbcType=VARCHAR},
+      </if>
+      <if test="shuilv != null" >
+        shuilv = #{shuilv,jdbcType=VARCHAR},
+      </if>
+      <if test="xinghao != null" >
+        xinghao = #{xinghao,jdbcType=VARCHAR},
+      </if>
+      <if test="unit != null" >
+        unit = #{unit,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null" >
+        price = #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="hsjbz != null" >
+        hsjbz = #{hsjbz,jdbcType=VARCHAR},
+      </if>
+      <if test="ycbz != null" >
+        ycbz = #{ycbz,jdbcType=VARCHAR},
+      </if>
+      <if test="zwhzyqt != null" >
+        zwhzyqt = #{zwhzyqt,jdbcType=VARCHAR},
+      </if>
+      <if test="ssflbm != null" >
+        ssflbm = #{ssflbm,jdbcType=VARCHAR},
+      </if>
+      <if test="yhzc != null" >
+        yhzc = #{yhzc,jdbcType=VARCHAR},
+      </if>
+      <if test="ssflbmName != null" >
+        ssflbm_name = #{ssflbmName,jdbcType=VARCHAR},
+      </if>
+      <if test="yhzcType != null" >
+        yhzc_type = #{yhzcType,jdbcType=VARCHAR},
+      </if>
+      <if test="lslbz != null" >
+        lslbz = #{lslbz,jdbcType=VARCHAR},
+      </if>
+      <if test="bmbbh != null" >
+        bmbbh = #{bmbbh,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mmall.pojo.DzfpProduct" >
+    update mmall_dzfp_product
+    set code = #{code,jdbcType=VARCHAR},
+      product_name = #{productName,jdbcType=VARCHAR},
+      jianma = #{jianma,jdbcType=VARCHAR},
+      shuimu = #{shuimu,jdbcType=VARCHAR},
+      shuilv = #{shuilv,jdbcType=VARCHAR},
+      xinghao = #{xinghao,jdbcType=VARCHAR},
+      unit = #{unit,jdbcType=VARCHAR},
+      price = #{price,jdbcType=DECIMAL},
+      hsjbz = #{hsjbz,jdbcType=VARCHAR},
+      ycbz = #{ycbz,jdbcType=VARCHAR},
+      zwhzyqt = #{zwhzyqt,jdbcType=VARCHAR},
+      ssflbm = #{ssflbm,jdbcType=VARCHAR},
+      yhzc = #{yhzc,jdbcType=VARCHAR},
+      ssflbm_name = #{ssflbmName,jdbcType=VARCHAR},
+      yhzc_type = #{yhzcType,jdbcType=VARCHAR},
+      lslbz = #{lslbz,jdbcType=VARCHAR},
+      bmbbh = #{bmbbh,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectByProductName" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from mmall_dzfp_product
+    where product_name like #{productName}
+  </select>
+
+</mapper>

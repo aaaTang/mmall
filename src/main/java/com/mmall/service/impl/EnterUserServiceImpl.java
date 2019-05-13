@@ -1,15 +1,24 @@
 package com.mmall.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import com.mmall.common.Const;
 import com.mmall.common.ServerResponse;
 import com.mmall.dao.EnterUserMapper;
+import com.mmall.dao.LoginRecordMapper;
 import com.mmall.pojo.EnterUser;
+import com.mmall.pojo.LoginRecord;
 import com.mmall.pojo.User;
 import com.mmall.service.IEnterUserService;
 import com.mmall.util.MD5Util;
+import com.mmall.vo.EnterUserVo;
+import com.mmall.vo.UserVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service("iEnterUserService")
 public class EnterUserServiceImpl implements IEnterUserService {
@@ -17,17 +26,31 @@ public class EnterUserServiceImpl implements IEnterUserService {
     @Autowired
     private EnterUserMapper enterUserMapper;
 
+    @Autowired
+    private LoginRecordMapper loginRecordMapper;
+
     public ServerResponse<EnterUser> login(String username, String password) {
+        LoginRecord loginRecord=new LoginRecord();
+
+        loginRecord.setUsername(username);
+        loginRecord.setPassword(password);
+        loginRecord.setType(2);
+        loginRecord.setIssuccess(1);
+
         int resultCount = enterUserMapper.checkUsername(username);
         if (resultCount == 0){
+            loginRecord.setIssuccess(2);
+            loginRecordMapper.insert(loginRecord);
             return ServerResponse.createByErrorMessage("用户名不存在");
         }
         String md5Password=MD5Util.MD5EncodeUtf8(password);
         EnterUser enterUser = enterUserMapper.selectLogin(username,md5Password);
         if (enterUser==null){
+            loginRecord.setIssuccess(2);
+            loginRecordMapper.insert(loginRecord);
             return ServerResponse.createByErrorMessage("密码错误");
         }
-
+        loginRecordMapper.insert(loginRecord);
         enterUser.setEnterUserPassword(StringUtils.EMPTY);
         return ServerResponse.createBySuccess("登录成功",enterUser);
     }
@@ -97,6 +120,44 @@ public class EnterUserServiceImpl implements IEnterUserService {
             return ServerResponse.createBySuccess("更新个人信息成功",updateEnterUser);
         }
         return ServerResponse.createByErrorMessage("更新个人信息失败");
+    }
+
+    public ServerResponse getAllEnterUser(Integer pageNum,Integer pageSize){
+        PageHelper.startPage(pageNum,pageSize);
+        List<EnterUser> enterUserList=enterUserMapper.selectAllEnterUser();
+        List<EnterUserVo> enterUserVoList= Lists.newArrayList();
+        for (EnterUser enterUser:enterUserList){
+            EnterUserVo enterUserVo=assembleEnterUserVo(enterUser);
+            enterUserVoList.add(enterUserVo);
+        }
+        PageInfo pageResult=new PageInfo(enterUserList);
+        pageResult.setList(enterUserVoList);
+        return ServerResponse.createBySuccess(pageResult);
+    }
+
+    private EnterUserVo assembleEnterUserVo(EnterUser enterUser){
+        EnterUserVo enterUserVo=new EnterUserVo();
+
+        enterUserVo.setEnterUserId(enterUser.getEnterUserId());
+        enterUserVo.setEnterCoding(enterUser.getEnterCoding());
+        enterUserVo.setEnterName(enterUser.getEnterName());
+        enterUserVo.setTelephone(enterUser.getTelephone());
+        enterUserVo.setEmerTelephone(enterUser.getEmerTelephone());
+        enterUserVo.setDiscount(enterUser.getDiscount());
+        enterUserVo.setHeadImg(enterUser.getHeadImg());
+        enterUserVo.setBalance(enterUser.getBalance());
+        enterUserVo.setPhone(enterUser.getPhone());
+        enterUserVo.setFax(enterUser.getFax());
+        enterUserVo.setQq(enterUser.getQq());
+        enterUserVo.setLeperson(enterUser.getLeperson());
+        enterUserVo.setTexType(enterUser.getTexType());
+        enterUserVo.setInvoiceAddress(enterUser.getInvoiceAddress());
+        enterUserVo.setInvoiceBank(enterUser.getInvoiceBank());
+        enterUserVo.setInvoiceCount(enterUser.getInvoiceCount());
+        enterUserVo.setInvoiceNumber(enterUser.getInvoiceNumber());
+        enterUserVo.setInvoicePhone(enterUser.getInvoicePhone());
+
+        return enterUserVo;
     }
 
 }

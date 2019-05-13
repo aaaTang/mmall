@@ -6,6 +6,14 @@ import java.util.Set;
 
 public class Const {
 
+    public static final String skuSplit=",";
+
+    public static final int average=5;
+    public static final double medium=0.0;
+    public static final double good=1.0;
+    public static final double bad=0.0;
+
+
     public static final String CURRENT_USER = "currentUser";
 
     public static final String EMAIL="email";
@@ -17,8 +25,39 @@ public class Const {
 
     public static final int Decimal_digits=2;
 
+    //电子发票开具与下载相关参数；
+
+    //开票税率
+    public static final double sl=0.10;
+    //开票地址
+    public static final String url="http://jsfapiao.cn:9000/dianzifapiaoService/slqzconsole.do";
+    //开票税号
+    public static final String tax = "91320102771268806K";
+    //开票人
+    public static final String kpr="岳一军";
+    //销货方名称
+    public static final String XHFMC="南京思贝丽商贸有限公司";
+    //销货方地址
+    public static final String XHF_DZ="南京市玄武区汇文里12号";
+    //销货方电话
+    public static final String XHF_DH="84718591";
+    //销货方银行账号
+    public static final String XHF_YHZH="中国银行南京珠江路支行522267381131";
+    //平台编码
+    public static final String DSPTBM="v0bbdjYO";
+    //平台密码
+    public static final String passWord="3201000132MDgxMDMwYTA0YWQyOGMyMw==";
+    //授权码
+    public static final String authorizationCode="WQM8N5UPL1";
+    //电子发票下载路径
+    public static final String fpDownUrl="C:\\ftpfile\\img\\dzfp";
+
     public interface RedisCacheExtime{
         int REDIS_SEESION_EXTIME=60*30;//30分钟
+    }
+
+    public interface CookieCacheExtime{
+        int COOKIES_EXTIME=60*60*12;//12小时，单位是秒
     }
 
     public interface ProductListOrderBy{
@@ -60,6 +99,43 @@ public class Const {
         }
     }
 
+    public enum UserRoleEnum{
+
+        PUTONG(-1,"普通用户"),
+        PUTONG1(0,"普通用户"),
+        YIJI(1,"一级审核员"),
+        ERJI(2,"二级审核员"),
+        SANJI(3,"三级审核员"),
+        SIJI(4,"四级审核员"),
+        WUJI(5,"管理员");
+
+        UserRoleEnum(int code,String value){
+            this.code=code;
+            this.value=value;
+        }
+        private String value;
+        private int code;
+
+        public String getValue() {
+            return value;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public static UserRoleEnum codeOf(int code){
+            for (UserRoleEnum userRoleEnum : values()){
+                if (userRoleEnum.getCode() == code){
+                    return userRoleEnum;
+                }
+            }
+            throw new RuntimeException("没有找到对应的枚举");
+        }
+
+    }
+
+
     public enum OrderStatusEnum{
 
         DISDEAL(-4,"订单未处理"),
@@ -97,6 +173,74 @@ public class Const {
             for (OrderStatusEnum orderStatusEnum : values()){
                 if (orderStatusEnum.getCode() == code){
                     return orderStatusEnum;
+                }
+            }
+            throw new RuntimeException("没有找到对应的枚举");
+        }
+
+    }
+
+    public enum ServiceTypeEnum{
+        SALERETURN(1,"退货"),
+        MONEYRETURN(2,"退款");
+
+        ServiceTypeEnum(int code,String value){
+            this.code=code;
+            this.value=value;
+        }
+        private String value;
+        private int code;
+
+        public String getValue() {
+            return value;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public static ServiceTypeEnum codeOf(int code){
+            for (ServiceTypeEnum serviceTypeEnum : values()){
+                if (serviceTypeEnum.getCode() == code){
+                    return serviceTypeEnum;
+                }
+            }
+            throw new RuntimeException("没有找到对应的枚举");
+        }
+
+    }
+
+    public enum ReasonTypeEnum{
+
+        POSUN(1,"收到商品破损"),
+        CUOFA(2,"商品错发/漏发"),
+        WEIXIU(3,"商品需要维修"),
+        FAPIAO(4,"发票问题"),
+        MIAOSHU(5,"收到商品与描述不符"),
+        ZHILIANG(6,"商品质量问题"),
+        SHIJIAN(7,"未按约定时间发货"),
+        JIAHUO(8,"收到假货"),
+        WULIYOU(9,"无理由退货");
+
+        ReasonTypeEnum(int code,String value){
+            this.code=code;
+            this.value=value;
+        }
+        private String value;
+        private int code;
+
+        public String getValue() {
+            return value;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public static ReasonTypeEnum codeOf(int code){
+            for (ReasonTypeEnum reasonTypeEnum : values()){
+                if (reasonTypeEnum.getCode() == code){
+                    return reasonTypeEnum;
                 }
             }
             throw new RuntimeException("没有找到对应的枚举");
@@ -184,6 +328,35 @@ public class Const {
             for (ExpressTypeEnum expressTypeEnum : values()){
                 if (expressTypeEnum.getCode() == code){
                     return expressTypeEnum;
+                }
+            }
+            throw new RuntimeException("没有找到对应的枚举");
+        }
+    }
+
+    public enum InvoiceTypeEnum{
+        KAIJU(1,"已开具"),
+        HONGCHONG(2,"已红冲");
+
+        InvoiceTypeEnum(int code,String value){
+            this.code=code;
+            this.value=value;
+        }
+        private String value;
+        private int code;
+
+        public String getValue() {
+            return value;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public static InvoiceTypeEnum codeOf(int code){
+            for (InvoiceTypeEnum invoiceTypeEnum : values()){
+                if (invoiceTypeEnum.getCode() == code){
+                    return invoiceTypeEnum;
                 }
             }
             throw new RuntimeException("没有找到对应的枚举");

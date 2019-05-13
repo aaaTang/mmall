@@ -3,6 +3,8 @@ package com.mmall.dao;
 import com.mmall.pojo.Drawback;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 public interface DrawbackMapper {
     int deleteByPrimaryKey(Integer id);
 
@@ -17,4 +19,6 @@ public interface DrawbackMapper {
     int updateByPrimaryKey(Drawback record);
 
     Drawback selectByUserIdAndOrderNo(@Param("userId") Integer userId,@Param("orderNo") Long orderNo);
+
+    List<Drawback> selectAllDrawback();
 }
